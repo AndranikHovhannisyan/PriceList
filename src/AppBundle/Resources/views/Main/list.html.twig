@@ -1,0 +1,34 @@
+{% extends '::base.html.twig' %}
+
+{% block stylesheets %}
+    {{ parent() }}
+
+    <style>
+        table, th, td {
+            border: 1px solid black;
+            border-spacing: 0;
+        }
+    </style>
+{% endblock %}
+{% block body %}
+
+    <a href="{{ path('single') }}">Add new</a>
+    <table>
+        <colgroup span="4"></colgroup>
+        <tr>
+            <th>Id</th>
+            <th>Name</th>
+            <th>Total</th>
+            <th>Actions</th>
+        </tr>
+        {% for priceList in priceLists %}
+            <tr>
+                <td>{{ priceList.id }}</td>
+                <td>{{ priceList.name }}</td>
+                <td>{{ priceList.getTotal() }}</td>
+                <td><a href="{{ path('single', {'id': priceList.id}) }}">Edit</a></td>
+            </tr>
+        {% endfor %}
+    </table>
+
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends '::base.html.twig' %}
+
+{% block body %}
+    <form method="POST" action="#">
+
+        {{ form_widget(form.name) }}
+
+        <ul id="product-fields-list"
+            data-prototype="{{ form_widget(form.priceListProducts.vars.prototype)|e }}"
+            data-product-count="{{ form.priceListProducts|length }}">
+
+            {% for priceListProduct in form.priceListProducts %}
+                <li>
+                    {#{{ form_errors(emailField) }}#}
+                    {{ form_widget(priceListProduct) }}
+                </li>
+            {% endfor %}
+        </ul>
+
+        <a href="#" id="add-product">Add product</a>
+
+        {{ form_widget(form._token) }}
+        <input type="submit" />
+    </form>
+{% endblock %}
+
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('/bundles/app/js/addProduct.js') }}"></script>
+{% endblock %}

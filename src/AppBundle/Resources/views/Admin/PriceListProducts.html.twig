@@ -1,0 +1,14 @@
+{% extends 'SonataAdminBundle:CRUD:base_show_field.html.twig' %}
+
+{%- block field %}
+    {% for priceListProduct in object.priceListProducts %}
+        <div class="row">
+            <div class="col-sm-5">
+                {{ priceListProduct.product.name }}
+            </div>
+            <div class="col-sm-2">
+                {{ priceListProduct.quantity }}
+            </div>
+        </div>
+    {% endfor %}
+{% endblock -%}

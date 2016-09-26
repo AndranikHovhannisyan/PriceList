@@ -1,0 +1,8 @@
+{
+    "name": "price_list",
+    "version": "0.0.0",
+    "dependencies": {
+        "bootstrap": "^3.3.0",
+        "jquery": "2.1.*"
+    }
+}
