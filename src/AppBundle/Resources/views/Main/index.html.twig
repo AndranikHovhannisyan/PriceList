@@ -1,9 +1,11 @@
 {% extends '::base.html.twig' %}
 
 {% block body %}
+    {{ parent() }}
+
     <form method="POST" action="#">
 
-        {{ form_widget(form.name) }}
+        {{ form_widget(form.name, {'attr': {'class': 'form-control'} }) }}
 
         <ul id="product-fields-list"
             data-prototype="{{ form_widget(form.priceListProducts.vars.prototype)|e }}"
@@ -20,7 +22,7 @@
         <a href="#" id="add-product">Add product</a>
 
         {{ form_widget(form._token) }}
-        <input type="submit" />
+        <input type="submit" class="btn btn-primary" />
     </form>
 {% endblock %}
 

@@ -16,5 +16,6 @@
 /web/bundles/
 /web/bower_components/
 bower_components/
+web/bower_components
 .idea/
 var/
