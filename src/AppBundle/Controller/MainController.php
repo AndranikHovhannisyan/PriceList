@@ -3,6 +3,7 @@
 namespace AppBundle\Controller;
 
 use AppBundle\Entity\PriceList;
+use AppBundle\Entity\PriceListProduct;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
@@ -18,12 +19,18 @@ class MainController extends Controller
      * @Security("has_role('ROLE_USER')")
      * @Template()
      */
-    public function indexAction(Request $request, $id = null)
+    public function createAction(Request $request, $id = null)
     {
         $em = $this->getDoctrine()->getManager();
 
         if (is_null($id)){
             $priceList = new PriceList();
+            $products = $em->getRepository('AppBundle:Product')->findAll();
+            foreach($products as $product){
+                $priceListProduct = new PriceListProduct();
+                $priceListProduct->setProduct($product);
+                $priceList->addPriceListProduct($priceListProduct);
+            }
         }
         else {
             $priceList = $em->getRepository('AppBundle:PriceList')->find($id);

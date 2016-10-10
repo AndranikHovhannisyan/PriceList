@@ -1,0 +1,42 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: andranik
+ * Date: 10/11/16
+ * Time: 12:12 AM
+ */
+namespace AppBundle\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+
+/**
+ * Class PriceList
+ * @package AppBundle
+ *
+ * @ORM\Entity(repositoryClass="AppBundle\Entity\Repository\PriceListRepository")
+ * @ORM\Table(name="price_list")
+ */
+class Company
+{
+    /**
+     * @ORM\Column(name="id", type="integer")
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
+    protected $id;
+
+    /**
+     * @ORM\Column(name="name", type="string", length=100, nullable=false)
+     */
+    protected $name;
+
+    /**
+     * @ORM\Column(name="address", type="string", length=200, nullable=false)
+     */
+    protected $address;
+
+    /**
+     * @ORM\OneToMany(targetEntity="PriceList", mappedBy="company")
+     */
+    protected $priceList;
+}

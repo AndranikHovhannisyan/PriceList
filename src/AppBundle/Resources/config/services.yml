@@ -16,3 +16,15 @@ services:
         arguments: [~, AppBundle\Entity\Product, SonataAdminBundle:CRUD]
         tags:
             - { name: sonata.admin, manager_type: orm, group: admin, label: Product }
+
+    app.admin.company:
+        class: AppBundle\Admin\CompanyAdmin
+        arguments: [~, AppBundle\Entity\Company, SonataAdminBundle:CRUD]
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: admin, label: Company }
+
+    app.admin.user:
+        class: AppBundle\Admin\UserAdmin
+        arguments: [~, AppBundle\Entity\User, SonataAdminBundle:CRUD]
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: admin, label: User }

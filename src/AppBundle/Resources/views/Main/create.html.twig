@@ -1,0 +1,41 @@
+{% extends '::base.html.twig' %}
+
+{% block body %}
+    {{ parent() }}
+
+    <form method="POST" action="#">
+
+        {{ form_widget(form.name, {'attr': {'class': 'form-control'} }) }}
+
+        <ul id="product-fields-list"
+            data-prototype="{{ form_widget(form.priceListProducts.vars.prototype)|e }}"
+            data-product-count="{{ form.priceListProducts|length }}">
+
+            {% for priceListProduct in form.priceListProducts %}
+                {#{{ dump(priceListProduct) }}#}
+                <li>
+                <label>{{ priceListProduct.vars.value.product.name }}</label>
+                <input type="hidden" id="{{ priceListProduct.vars.id }}_product" name="{{ priceListProduct.vars.full_name }}[product]" value="{{ priceListProduct.vars.value.product.id }}" />
+
+                <input type="number" value="{{ priceListProduct.vars.value.product.price }}" disabled/>
+                <input type="number" id="{{ priceListProduct.vars.id }}_quantity" name="{{ priceListProduct.vars.full_name }}[quantity]" min="0" value="{{ priceListProduct.vars.value.quantity }}"/>
+                <input type="number" value="{{ priceListProduct.vars.value.quantity * priceListProduct.vars.value.product.price }}" disabled/>
+                    {#{{ form_errors(emailField) }}#}
+                    {#{{ form_widget(priceListProduct) }}#}
+                </li>
+
+            {% endfor %}
+        </ul>
+
+        {#<a href="#" id="add-product">Add product</a>#}
+
+        {{ form_widget(form._token) }}
+        <input type="submit" class="btn btn-primary" />
+    </form>
+{% endblock %}
+
+
+{% block javascripts %}
+    {{ parent() }}
+    {#<script src="{{ asset('/bundles/app/js/addProduct.js') }}"></script>#}
+{% endblock %}
