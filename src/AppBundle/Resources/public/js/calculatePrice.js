@@ -8,5 +8,15 @@ var calculatePrice = function(i)
     var quantity = $('.quantity_' + i).val();
     $('.price_' + i).text(singlePrice * quantity);
 
-    console.log(singlePrice * quantity)
+    calculateTotal();
+}
+
+var calculateTotal = function()
+{
+    var totalPrice = 0;
+    $('.price').each(function( i ) {
+        totalPrice += parseInt($(this).text());
+    });
+
+    $('.total_price').text(totalPrice);
 }

@@ -17,6 +17,7 @@
                 </tr>
 
                 {% set i = 1 %}
+                {% set totalPrice = 0 %}
                 {% for priceListProduct in form.priceListProducts %}
                     <tr>
                         <td>{{ i }}</td>
@@ -29,11 +30,22 @@
                         <td>
                             <input onkeyup="calculatePrice({{ i }})" type="number" id="{{ priceListProduct.vars.id }}_quantity" name="{{ priceListProduct.vars.full_name }}[quantity]" min="0" value="{{ priceListProduct.vars.value.quantity }}" class="form-control quantity_{{ i }}"/>
                         </td>
-                        <td class="price_{{ i }}">{{ priceListProduct.vars.value.quantity * priceListProduct.vars.value.product.price }}</td>
+
+                        {% set price = priceListProduct.vars.value.quantity * priceListProduct.vars.value.product.price %}
+                        {% set totalPrice = totalPrice + price %}
+                        <td class="price price_{{ i }}">{{ price }}</td>
                     </tr>
 
                     {% set i = i + 1 %}
                 {% endfor %}
+
+                <tr>
+                    <td>Total Price</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td class="total_price">{{ totalPrice }}</td>
+                </tr>
 
             </table>
 
