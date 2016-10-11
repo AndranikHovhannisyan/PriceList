@@ -26,7 +26,7 @@ class PriceListType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('name')
+            ->add('company')
             ->add('priceListProducts', CollectionType::class, array(
                 'entry_type' => PriceListProductType::class,
                 'allow_add'    => true,

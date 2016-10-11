@@ -31,13 +31,24 @@ class PriceList
     protected $name;
 
     /**
+     * @ORM\ManyToOne(targetEntity="Company", inversedBy="priceList")
+     * @ORM\JoinColumn(name="company_id", referencedColumnName="id")
+     */
+    protected $company;
+
+    /**
      * @ORM\ManyToOne(targetEntity="User")
      * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
      */
     protected $user;
 
     /**
-     * @ORM\OneToMany(targetEntity="PriceListProduct", mappedBy="priceList", cascade={"persist"})
+     * @var@ORM\Column(name="perform_date", type="datetime", nullable=false)
+     */
+    protected $performDate;
+
+    /**
+     * @ORM\OneToMany(targetEntity="PriceListProduct", mappedBy="priceList", cascade={"persist", "remove"})
      */
     protected $priceListProducts;
 
@@ -47,6 +58,11 @@ class PriceList
     public function __construct()
     {
         $this->priceListProducts = new \Doctrine\Common\Collections\ArrayCollection();
+    }
+
+    public function __toString()
+    {
+        return $this->getName() ? $this->getName() : '';
     }
 
     /**
@@ -133,5 +149,23 @@ class PriceList
     public function getUser()
     {
         return $this->user;
+    }
+
+    /**
+     * @param mixed $performDate
+     */
+    public function setPerformDate($performDate)
+    {
+        $this->performDate = $performDate;
+
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getPerformDate()
+    {
+        return $this->performDate;
     }
 }

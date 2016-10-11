@@ -26,15 +26,21 @@ class PriceList
     protected $id;
 
     /**
-     * @ORM\Column(name="name", type="string", length=100, nullable=false)
+     * @ORM\ManyToOne(targetEntity="Company", inversedBy="priceList")
+     * @ORM\JoinColumn(name="company_id", referencedColumnName="id")
      */
-    protected $name;
+    protected $company;
 
     /**
      * @ORM\ManyToOne(targetEntity="User")
      * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
      */
     protected $user;
+
+    /**
+     * @var@ORM\Column(name="perform_date", type="datetime", nullable=false)
+     */
+    protected $performDate;
 
     /**
      * @ORM\OneToMany(targetEntity="PriceListProduct", mappedBy="priceList", cascade={"persist", "remove"})
@@ -141,15 +147,44 @@ class PriceList
     }
 
     /**
-     * @return int
+     * @param mixed $performDate
      */
-    public function getTotal()
+    public function setPerformDate($performDate)
     {
-        $sum = 0;
-        foreach($this->getPriceListProducts() as $plProduct){
-            $sum += $plProduct->getQuantity() * $plProduct->getProduct()->getPrice();
-        }
+        $this->performDate = $performDate;
 
-        return $sum;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getPerformDate()
+    {
+        return $this->performDate;
+    }
+
+    /**
+     * Set company
+     *
+     * @param \AppBundle\Entity\Company $company
+     *
+     * @return PriceList
+     */
+    public function setCompany(\AppBundle\Entity\Company $company = null)
+    {
+        $this->company = $company;
+
+        return $this;
+    }
+
+    /**
+     * Get company
+     *
+     * @return \AppBundle\Entity\Company
+     */
+    public function getCompany()
+    {
+        return $this->company;
     }
 }

@@ -28,4 +28,15 @@ class User extends BaseUser
         parent::__construct();
         // your own logic
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setEmail($email)
+    {
+        $this->email = $email;
+        $this->setUsername($email);
+
+        return $this;
+    }
 }

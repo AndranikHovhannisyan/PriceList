@@ -19,7 +19,6 @@ class PriceListAdmin extends AbstractAdmin
     {
         $datagridMapper
             ->add('id')
-            ->add('name')
             ->add('user')
         ;
     }
@@ -31,7 +30,6 @@ class PriceListAdmin extends AbstractAdmin
     {
         $listMapper
             ->add('id')
-            ->add('name')
             ->add('user')
             ->add('_action', null, array(
                 'actions' => array(
@@ -49,7 +47,6 @@ class PriceListAdmin extends AbstractAdmin
     protected function configureFormFields(FormMapper $formMapper)
     {
         $formMapper
-            ->add('name')
             ->add('priceListProducts', CollectionType::class, array(
                 'entry_type' => PriceListProductType::class,
                 'allow_add'    => true,
@@ -65,7 +62,6 @@ class PriceListAdmin extends AbstractAdmin
     {
         $showMapper
             ->add('id')
-            ->add('name')
             ->add('priceListProducts', null, ['template' => 'AppBundle:Admin:PriceListProducts.html.twig'])
         ;
     }

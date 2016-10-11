@@ -3,39 +3,48 @@
 {% block body %}
     {{ parent() }}
 
-    <form method="POST" action="#">
+    <div class="container content">
+        <form method="POST" action="#">
+            {{ form_widget(form.company, {'attr': {'class': 'form-control'} }) }}
+            <br />
+            <table class="table table-striped table-bordered">
+                <tr>
+                    <th>N:</th>
+                    <th>Product</th>
+                    <th>Single Price</th>
+                    <th>Quantity</th>
+                    <th>Price</th>
+                </tr>
 
-        {{ form_widget(form.name, {'attr': {'class': 'form-control'} }) }}
+                {% set i = 1 %}
+                {% for priceListProduct in form.priceListProducts %}
+                    <tr>
+                        <td>{{ i }}</td>
+                        <td>
+                            {{ priceListProduct.vars.value.product.name }}
+                            <input type="hidden" id="{{ priceListProduct.vars.id }}_product" name="{{ priceListProduct.vars.full_name }}[product]" value="{{ priceListProduct.vars.value.product.id }}" />
+                        </td>
 
-        <ul id="product-fields-list"
-            data-prototype="{{ form_widget(form.priceListProducts.vars.prototype)|e }}"
-            data-product-count="{{ form.priceListProducts|length }}">
+                        <td class="single_price_{{ i }}">{{ priceListProduct.vars.value.product.price }}</td>
+                        <td>
+                            <input onkeyup="calculatePrice({{ i }})" type="number" id="{{ priceListProduct.vars.id }}_quantity" name="{{ priceListProduct.vars.full_name }}[quantity]" min="0" value="{{ priceListProduct.vars.value.quantity }}" class="form-control quantity_{{ i }}"/>
+                        </td>
+                        <td class="price_{{ i }}">{{ priceListProduct.vars.value.quantity * priceListProduct.vars.value.product.price }}</td>
+                    </tr>
 
-            {% for priceListProduct in form.priceListProducts %}
-                {#{{ dump(priceListProduct) }}#}
-                <li>
-                <label>{{ priceListProduct.vars.value.product.name }}</label>
-                <input type="hidden" id="{{ priceListProduct.vars.id }}_product" name="{{ priceListProduct.vars.full_name }}[product]" value="{{ priceListProduct.vars.value.product.id }}" />
+                    {% set i = i + 1 %}
+                {% endfor %}
 
-                <input type="number" value="{{ priceListProduct.vars.value.product.price }}" disabled/>
-                <input type="number" id="{{ priceListProduct.vars.id }}_quantity" name="{{ priceListProduct.vars.full_name }}[quantity]" min="0" value="{{ priceListProduct.vars.value.quantity }}"/>
-                <input type="number" value="{{ priceListProduct.vars.value.quantity * priceListProduct.vars.value.product.price }}" disabled/>
-                    {#{{ form_errors(emailField) }}#}
-                    {#{{ form_widget(priceListProduct) }}#}
-                </li>
+            </table>
 
-            {% endfor %}
-        </ul>
-
-        {#<a href="#" id="add-product">Add product</a>#}
-
-        {{ form_widget(form._token) }}
-        <input type="submit" class="btn btn-primary" />
-    </form>
+            {{ form_widget(form._token) }}
+            <input type="submit" class="btn btn-primary" />
+        </form>
+    </div>
 {% endblock %}
 
 
 {% block javascripts %}
     {{ parent() }}
-    {#<script src="{{ asset('/bundles/app/js/addProduct.js') }}"></script>#}
+    <script src="{{ asset('/bundles/app/js/calculatePrice.js') }}"></script>
 {% endblock %}

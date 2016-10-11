@@ -13,8 +13,8 @@ use Doctrine\ORM\Mapping as ORM;
  * Class PriceList
  * @package AppBundle
  *
- * @ORM\Entity(repositoryClass="AppBundle\Entity\Repository\PriceListRepository")
- * @ORM\Table(name="price_list")
+ * @ORM\Entity(repositoryClass="AppBundle\Entity\Repository\CompanyRepository")
+ * @ORM\Table(name="company")
  */
 class Company
 {
@@ -39,12 +39,18 @@ class Company
      * @ORM\OneToMany(targetEntity="PriceList", mappedBy="company")
      */
     protected $priceList;
+
     /**
      * Constructor
      */
     public function __construct()
     {
         $this->priceList = new \Doctrine\Common\Collections\ArrayCollection();
+    }
+
+    public function __toString()
+    {
+        return $this->name ? $this->name : '';
     }
 
     /**
