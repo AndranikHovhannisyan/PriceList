@@ -50,7 +50,7 @@ class Company
 
     public function __toString()
     {
-        return $this->name ? $this->name : '';
+        return $this->name ? $this->name . ' / ' . $this->address : '';
     }
 
     /**

@@ -29,6 +29,7 @@ class MainController extends Controller
             foreach($products as $product){
                 $priceListProduct = new PriceListProduct();
                 $priceListProduct->setProduct($product);
+                $priceListProduct->setQuantity(0);
                 $priceList->addPriceListProduct($priceListProduct);
             }
         }

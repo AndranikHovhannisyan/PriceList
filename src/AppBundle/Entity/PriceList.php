@@ -38,7 +38,7 @@ class PriceList
     protected $user;
 
     /**
-     * @var@ORM\Column(name="perform_date", type="datetime", nullable=false)
+     * @var@ORM\Column(name="perform_date", type="date", nullable=false)
      */
     protected $performDate;
 
@@ -53,6 +53,7 @@ class PriceList
     public function __construct()
     {
         $this->priceListProducts = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->setPerformDate(new \DateTime());
     }
 
     public function __toString()

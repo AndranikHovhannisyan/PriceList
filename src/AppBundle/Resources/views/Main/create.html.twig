@@ -4,6 +4,7 @@
     {{ parent() }}
 
     <div class="container content">
+        <p class="text-right">{{ form.vars.value.performDate|date('Y-m-d') }}</p>
         <form method="POST" action="#">
             {{ form_widget(form.company, {'attr': {'class': 'form-control'} }) }}
             <br />
