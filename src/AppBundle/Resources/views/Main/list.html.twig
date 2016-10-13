@@ -11,14 +11,18 @@
             <tr>
                 <th>Id</th>
                 <th>Company</th>
-                {#<th>Total</th>#}
+                <th>Date</th>
+                <th>Total</th>
+                {% if is_granted('ROLE_ADMIN') %}<th>User</th>{% endif %}
                 <th>Actions</th>
             </tr>
             {% for priceList in priceLists %}
                 <tr>
                     <td>{{ priceList.id }}</td>
                     <td>{{ priceList.company }}</td>
-                    {#<td>{{ priceList.getTotal() }}</td>#}
+                    <td>{{ priceList.performDate|date('Y-m-d') }}</td>
+                    <td>{{ priceList.total }}</td>
+                    {% if is_granted('ROLE_ADMIN') %}<th>{{ priceList.user.username }}</th>{% endif %}
                     <td><a href="{{ path('single', {'id': priceList.id}) }}">Edit</a></td>
                 </tr>
             {% endfor %}

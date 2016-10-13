@@ -38,7 +38,7 @@ class PriceList
     protected $user;
 
     /**
-     * @var@ORM\Column(name="perform_date", type="date", nullable=false)
+     * @ORM\Column(name="perform_date", type="date", nullable=false)
      */
     protected $performDate;
 
@@ -46,6 +46,11 @@ class PriceList
      * @ORM\OneToMany(targetEntity="PriceListProduct", mappedBy="priceList", cascade={"persist", "remove"})
      */
     protected $priceListProducts;
+
+    /**
+     * @var
+     */
+    protected $total;
 
     /**
      * Constructor
@@ -187,5 +192,21 @@ class PriceList
     public function getCompany()
     {
         return $this->company;
+    }
+
+    /**
+     * @param mixed $total
+     */
+    public function setTotal($total)
+    {
+        $this->total = $total;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getTotal()
+    {
+        return $this->total;
     }
 }

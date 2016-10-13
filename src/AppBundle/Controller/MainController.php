@@ -65,8 +65,27 @@ class MainController extends Controller
     public function listAction(Request $request)
     {
         $em = $this->getDoctrine()->getManager();
-        $priceLists = $em->getRepository('AppBundle:PriceList')->findByUser($this->getUser());
+        $user = $this->isGranted('ROLE_ADMIN') ? null : $this->getUser();
+        $priceLists = $em->getRepository('AppBundle:PriceList')->findByUser($user);
+        $totals = $em->getRepository('AppBundle:PriceList')->findPriceListsTotal(array_keys($priceLists));
+
+        foreach($priceLists as $id => $priceList){
+            $priceList->setTotal($totals[$id]['total']);
+        }
 
         return ['priceLists' => $priceLists];
+    }
+
+    /**
+     * @Route("/statistic", name="statistic")
+     * @Security("has_role('ROLE_USER')")
+     * @Template()
+     */
+    public function statisticAction(Request $request)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $companies = $em->getRepository('AppBundle:Company')->findAll();
+
+        return ['companies' => $companies];
     }
 }

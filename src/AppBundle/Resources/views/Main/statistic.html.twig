@@ -1,0 +1,83 @@
+{% extends '::base.html.twig' %}
+
+{% block body %}
+    {{ parent() }}
+
+    <div class="container content">
+        <form>
+            <div class="row">
+                <div class="col-md-3"><strong>Company</strong></div>
+                <div class="col-md-3"><strong>From</strong></div>
+                <div class="col-md-3"><strong>To</strong></div>
+            </div>
+            <div class="row">
+                <div class="col-md-3">
+                    <select class="form-control">
+                        {% for company in companies %}
+                            <option value="{{ company.id }}">{{ company }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <input type="date" name="start_date" class="form-control"/>
+                </div>
+                <div class="col-md-3">
+                    <input type="date" name="end_date" class="form-control"/>
+                </div>
+                <div class="col-md-3">
+                    <input type="submit" class="btn btn-primary" />
+                </div>
+            </div>
+        </form>
+
+        {#<p class="text-right">{{ form.vars.value.performDate|date('Y-m-d') }}</p>#}
+
+        {#<br />#}
+        {#<table class="table table-striped table-bordered">#}
+            {#<tr>#}
+                {#<th>N:</th>#}
+                {#<th>Product</th>#}
+                {#<th>Single Price</th>#}
+                {#<th>Quantity</th>#}
+                {#<th>Price</th>#}
+            {#</tr>#}
+
+            {#{% set i = 1 %}#}
+            {#{% set totalPrice = 0 %}#}
+            {#{% for priceListProduct in form.priceListProducts %}#}
+                {#<tr>#}
+                    {#<td>{{ i }}</td>#}
+                    {#<td>#}
+                        {#{{ priceListProduct.vars.value.product.name }}#}
+                        {#<input type="hidden" id="{{ priceListProduct.vars.id }}_product" name="{{ priceListProduct.vars.full_name }}[product]" value="{{ priceListProduct.vars.value.product.id }}" />#}
+                    {#</td>#}
+
+                    {#<td class="single_price_{{ i }}">{{ priceListProduct.vars.value.product.price }}</td>#}
+                    {#<td>#}
+                        {#<input onkeyup="calculatePrice({{ i }})" type="number" id="{{ priceListProduct.vars.id }}_quantity" name="{{ priceListProduct.vars.full_name }}[quantity]" min="0" value="{{ priceListProduct.vars.value.quantity }}" class="form-control quantity_{{ i }}"/>#}
+                    {#</td>#}
+
+                    {#{% set price = priceListProduct.vars.value.quantity * priceListProduct.vars.value.product.price %}#}
+                    {#{% set totalPrice = totalPrice + price %}#}
+                    {#<td class="price price_{{ i }}">{{ price }}</td>#}
+                {#</tr>#}
+
+                {#{% set i = i + 1 %}#}
+            {#{% endfor %}#}
+
+            {#<tr>#}
+                {#<td>Total Price</td>#}
+                {#<td></td>#}
+                {#<td></td>#}
+                {#<td></td>#}
+                {#<td class="total_price">{{ totalPrice }}</td>#}
+            {#</tr>#}
+
+        {#</table>#}
+    </div>
+{% endblock %}
+
+
+{% block javascripts %}
+    {{ parent() }}
+{% endblock %}
