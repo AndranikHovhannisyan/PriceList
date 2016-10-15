@@ -85,24 +85,28 @@ class MainController extends Controller
      */
     public function statisticAction(Request $request)
     {
-        $em = $this->getDoctrine()->getManager();
+        $em        = $this->getDoctrine()->getManager();
         $companies = $em->getRepository('AppBundle:Company')->findAllIndexedById();
+        $result    = [];
+
+        $companyId = $request->get('company', null);
+        $startDate = $request->get('start_date', null);
+        $endDate   = $request->get('end_date', null);
 
         if ($request->getMethod() == "POST"){
-            $companyId = $request->get('company', null);
             if(is_null($companyId) || !isset($companies[$companyId])){
                 throw new HttpException(Response::HTTP_BAD_REQUEST);
             }
 
-            $startDate = $request->get('start_date', null);
-            $endDate = $request->get('end_date', null);
-
             $result = $em->getRepository('AppBundle:PriceList')->findStatistic($companyId, $startDate, $endDate);
-            dump ($result);
-            exit;
-
         }
 
-        return ['companies' => $companies];
+        return [
+            'companyId' => $companyId,
+            'start_date' => $startDate,
+            'end_date' => $endDate,
+            'companies' => $companies,
+            'result' => $result
+        ];
     }
 }

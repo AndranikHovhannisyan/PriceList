@@ -45,14 +45,21 @@ class PriceListRepository extends \Doctrine\ORM\EntityRepository
 
     public function findStatistic($companyId, $startDate, $endDate)
     {
+        $startDate = $startDate ? $startDate : null;
+        $endDate = $endDate ? $endDate : null;
+
         return $this->getEntityManager()
-            ->createQuery("SELECT p.name, SUM(plp.quantity)
-                           FROM AppBundle:PriceList pl
-                           JOIN pl.priceListProducts plp
-                           JOIN plp.product p
-                           WHERE pl.company = :company
-                           GROUP BY p.name")
+            ->createQuery("SELECT  p.id, p.name, p.price, COALESCE(SUM(plp.quantity * (pl.id / pl.id)), 0) as quantity
+                           FROM AppBundle:Product p
+                           LEFT JOIN AppBundle:PriceListProduct plp WITH plp.product = p
+                           LEFT JOIN plp.priceList pl WITH pl.company = :company
+                                      AND (pl.performDate >= :startDate OR :startDate IS NULL)
+                                      AND (pl.performDate <= :endDate OR :endDate IS NULL)
+                           GROUP BY p.name
+                           ORDER BY p.id")
             ->setParameter('company', $companyId)
+            ->setParameter('startDate', $startDate)
+            ->setParameter('endDate', $endDate)
             ->getResult();
     }
 }
