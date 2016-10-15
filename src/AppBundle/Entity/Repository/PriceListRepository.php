@@ -34,7 +34,7 @@ class PriceListRepository extends \Doctrine\ORM\EntityRepository
                            JOIN plp.product p
                            LEFT JOIN pl.company c
                            WHERE pl.user = :user OR :user IS NULL
-                           ORDER BY pl.performDate DESC")
+                           ORDER BY pl.id DESC")
             ->setParameter('user', $user);
     }
 

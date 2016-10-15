@@ -31,7 +31,7 @@ class Product
     protected $name;
 
     /**
-     * @ORM\Column(name="code", type="string", length=20, nullable=false)
+     * @ORM\Column(name="code", type="string", length=20, nullable=true)
      */
     protected $code;
 
