@@ -6,27 +6,35 @@
 {% block body %}
     {{ parent() }}
 
-    <div class="table-responsive">
-        <table class="table table-striped table-bordered">
-            <tr>
-                <th>Id</th>
-                <th>Company</th>
-                <th>Date</th>
-                <th>Total</th>
-                {% if is_granted('ROLE_ADMIN') %}<th>User</th>{% endif %}
-                <th>Actions</th>
-            </tr>
-            {% for priceList in priceLists %}
+    <div class="container content">
+        <div class="table-responsive">
+            <table class="table table-striped table-bordered">
                 <tr>
-                    <td>{{ priceList.id }}</td>
-                    <td>{{ priceList.company }}</td>
-                    <td>{{ priceList.performDate|date('Y-m-d') }}</td>
-                    <td>{{ priceList.total }}</td>
-                    {% if is_granted('ROLE_ADMIN') %}<th>{{ priceList.user.username }}</th>{% endif %}
-                    <td><a href="{{ path('single', {'id': priceList.id}) }}">Edit</a></td>
+                    <th>Id</th>
+                    <th>Company</th>
+                    <th>Date</th>
+                    <th>Total</th>
+                    {% if is_granted('ROLE_ADMIN') %}<th>User</th>{% endif %}
+                    <th>Actions</th>
                 </tr>
-            {% endfor %}
-        </table>
+                {% for priceList in priceLists %}
+                    <tr>
+                        <td>{{ priceList.id }}</td>
+                        <td>{{ priceList.company }}</td>
+                        <td>{{ priceList.performDate|date('Y-m-d') }}</td>
+                        <td>{{ priceList.total }}</td>
+                        {% if is_granted('ROLE_ADMIN') %}<th>{{ priceList.user.username }}</th>{% endif %}
+                        <td>
+                            <a href="{{ path('view', {'id': priceList.id}) }}">View</a>
+                            {#<a href="{{ path('single', {'id': priceList.id}) }}">Edit</a>#}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+
+        {{ knp_pagination_render(priceLists) }}
+
     </div>
 
 {% endblock %}

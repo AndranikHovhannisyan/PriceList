@@ -10,7 +10,21 @@ namespace AppBundle\Entity\Repository;
  */
 class PriceListRepository extends \Doctrine\ORM\EntityRepository
 {
-    public function findByUser($user)
+    public function findWithRelations($id)
+    {
+        return $this->getEntityManager()
+            ->createQuery("SELECT pl, plp, p, c
+                           FROM AppBundle:PriceList pl
+                           INDEX BY pl.id
+                           JOIN pl.priceListProducts plp
+                           JOIN plp.product p
+                           LEFT JOIN pl.company c
+                           WHERE pl.id = :id")
+            ->setParameter('id', $id)
+            ->getOneOrNullResult();
+    }
+
+    public function findQueryByUser($user)
     {
         return $this->getEntityManager()
             ->createQuery("SELECT pl, plp, p, c
@@ -21,8 +35,7 @@ class PriceListRepository extends \Doctrine\ORM\EntityRepository
                            LEFT JOIN pl.company c
                            WHERE pl.user = :user OR :user IS NULL
                            ORDER BY pl.performDate DESC")
-            ->setParameter('user', $user)
-            ->getResult();
+            ->setParameter('user', $user);
     }
 
     public function findPriceListsTotal($priceListIds)

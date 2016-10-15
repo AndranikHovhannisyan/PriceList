@@ -23,7 +23,9 @@
         "incenteev/composer-parameter-handler": "^2.0",
         "sonata-project/admin-bundle": "^3.8",
         "friendsofsymfony/user-bundle": "~2.0@dev",
-        "sonata-project/doctrine-orm-admin-bundle": "^3.1"
+        "sonata-project/doctrine-orm-admin-bundle": "^3.1",
+        "willdurand/faker-bundle": "@stable",
+        "knplabs/knp-paginator-bundle": "^2.5"
     },
     "require-dev": {
         "sensio/generator-bundle": "^3.0",

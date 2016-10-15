@@ -32,3 +32,15 @@ monolog:
 
 #swiftmailer:
 #    delivery_address: me@example.com
+
+bazinga_faker:
+    orm: doctrine
+    entities:
+        AppBundle\Entity\Company:
+            number: 2000
+        AppBundle\Entity\PriceList:
+            number: 10000
+        AppBundle\Entity\Product:
+            number: 30
+        AppBundle\Entity\PriceListProduct:
+            number: 30000

@@ -15,7 +15,8 @@ class CompanyRepository extends \Doctrine\ORM\EntityRepository
         return $this->getEntityManager()
             ->createQuery("SELECT c
                            FROM AppBundle:Company c
-                           INDEX BY c.id")
+                           INDEX BY c.id
+                           ORDER BY c.name")
             ->getResult();
 
     }

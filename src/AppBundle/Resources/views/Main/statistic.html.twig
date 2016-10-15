@@ -1,5 +1,10 @@
 {% extends '::base.html.twig' %}
 
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" type="text/css" href="{{ asset('/bundles/app/select2/css/select2.min.css') }}"/>
+{% endblock %}
+
 {% block body %}
     {{ parent() }}
 
@@ -12,7 +17,8 @@
             </div>
             <div class="row">
                 <div class="col-md-3">
-                    <select name="company" class="form-control" required>
+                    <select name="company" class="form-control select2" required>
+                        <option></option>
                         {% for company in companies %}
                             <option value="{{ company.id }}" {% if companyId is not null and company.id == companyId %}selected="selected"{% endif %}>{{ company }}</option>
                         {% endfor %}
@@ -25,7 +31,7 @@
                     <input type="date" name="end_date" class="form-control" value="{{ end_date }}"/>
                 </div>
                 <div class="col-md-3">
-                    <input type="submit" class="btn btn-primary" />
+                    <input type="submit" class="btn btn-primary" value="Filter" />
                 </div>
             </div>
         </form>
@@ -69,4 +75,13 @@
 
         </table>
     </div>
+{% endblock %}
+
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('/bundles/app/select2/js/select2.min.js') }}"></script>
+    <script type="text/javascript">
+        $('.select2').select2();
+    </script>
 {% endblock %}

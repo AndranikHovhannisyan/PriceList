@@ -24,6 +24,7 @@ class MainController extends Controller
     public function createAction(Request $request, $id = null)
     {
         $em = $this->getDoctrine()->getManager();
+        $companies = $em->getRepository('AppBundle:Company')->findAllIndexedById();
 
         if (is_null($id)){
             $priceList = new PriceList();
@@ -36,7 +37,7 @@ class MainController extends Controller
             }
         }
         else {
-            $priceList = $em->getRepository('AppBundle:PriceList')->find($id);
+            $priceList = $em->getRepository('AppBundle:PriceList')->findWithRelations($id);
         }
 
         $form = $this->createForm(PriceListType::class, $priceList);
@@ -56,7 +57,24 @@ class MainController extends Controller
             return $this->redirectToRoute('list');
         }
 
-        return array('form' => $form->createView());
+        return array('form' => $form->createView(), 'companies' => $companies);
+    }
+
+    /**
+     * @Route("/view/{id}", name="view", requirements={"id"="\d+"})
+     * @Security("has_role('ROLE_USER')")
+     * @Template()
+     */
+    public function viewAction($id)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $priceList = $em->getRepository('AppBundle:PriceList')->findWithRelations($id);
+
+        if (is_null($priceList)){
+            throw new HttpException(Response::HTTP_NOT_FOUND);
+        }
+
+        return ['priceList' => $priceList];
     }
 
     /**
@@ -68,14 +86,20 @@ class MainController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
         $user = $this->isGranted('ROLE_ADMIN') ? null : $this->getUser();
-        $priceLists = $em->getRepository('AppBundle:PriceList')->findByUser($user);
-        $totals = $em->getRepository('AppBundle:PriceList')->findPriceListsTotal(array_keys($priceLists));
+        $priceListsQuery = $em->getRepository('AppBundle:PriceList')->findQueryByUser($user);
 
-        foreach($priceLists as $id => $priceList){
+        $paginator  = $this->get('knp_paginator');
+        $pagination = $paginator->paginate($priceListsQuery, $request->query->getInt('page', 1), 15);
+
+        $totals = $em->getRepository('AppBundle:PriceList')->findPriceListsTotal(array_keys($pagination->getItems()));
+
+
+
+        foreach($pagination->getItems() as $id => &$priceList){
             $priceList->setTotal($totals[$id]['total']);
         }
 
-        return ['priceLists' => $priceLists];
+        return ['priceLists' => $pagination];
     }
 
     /**
@@ -89,7 +113,7 @@ class MainController extends Controller
         $companies = $em->getRepository('AppBundle:Company')->findAllIndexedById();
         $result    = [];
 
-        $companyId = $request->get('company', null);
+        $companyId = $request->get('company', -1);
         $startDate = $request->get('start_date', null);
         $endDate   = $request->get('end_date', null);
 
