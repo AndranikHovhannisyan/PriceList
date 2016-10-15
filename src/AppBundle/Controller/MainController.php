@@ -10,7 +10,9 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use AppBundle\Form\PriceListType;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class MainController extends Controller
 {
@@ -84,7 +86,24 @@ class MainController extends Controller
     public function statisticAction(Request $request)
     {
         $em = $this->getDoctrine()->getManager();
-        $companies = $em->getRepository('AppBundle:Company')->findAll();
+        $companies = $em->getRepository('AppBundle:Company')->findAllIndexedById();
+
+        if ($request->getMethod() == "POST"){
+            $companyId = $request->get('company', null);
+            if(is_null($companyId) || !isset($companies[$companyId])){
+                throw new HttpException(Response::HTTP_BAD_REQUEST);
+            }
+
+            $company = $companies[$companyId];
+            $startDate = $request->get('start_date', null);
+            $endDate = $request->get('end_date', null);
+
+            dump ($company);
+            dump ($startDate);
+            dump ($endDate);
+            exit;
+
+        }
 
         return ['companies' => $companies];
     }

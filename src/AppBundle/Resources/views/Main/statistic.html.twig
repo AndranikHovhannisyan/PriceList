@@ -4,7 +4,7 @@
     {{ parent() }}
 
     <div class="container content">
-        <form>
+        <form method="POST" action="{{ path('statistic') }}">
             <div class="row">
                 <div class="col-md-3"><strong>Company</strong></div>
                 <div class="col-md-3"><strong>From</strong></div>
@@ -12,7 +12,7 @@
             </div>
             <div class="row">
                 <div class="col-md-3">
-                    <select class="form-control">
+                    <select name="company" class="form-control" required>
                         {% for company in companies %}
                             <option value="{{ company.id }}">{{ company }}</option>
                         {% endfor %}
