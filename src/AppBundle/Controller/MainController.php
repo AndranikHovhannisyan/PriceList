@@ -94,13 +94,11 @@ class MainController extends Controller
                 throw new HttpException(Response::HTTP_BAD_REQUEST);
             }
 
-            $company = $companies[$companyId];
             $startDate = $request->get('start_date', null);
             $endDate = $request->get('end_date', null);
 
-            dump ($company);
-            dump ($startDate);
-            dump ($endDate);
+            $result = $em->getRepository('AppBundle:PriceList')->findStatistic($companyId, $startDate, $endDate);
+            dump ($result);
             exit;
 
         }

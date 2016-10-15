@@ -42,4 +42,17 @@ class PriceListRepository extends \Doctrine\ORM\EntityRepository
             ->setParameter('ids', $priceListIds)
             ->getResult();
     }
+
+    public function findStatistic($companyId, $startDate, $endDate)
+    {
+        return $this->getEntityManager()
+            ->createQuery("SELECT p.name, SUM(plp.quantity)
+                           FROM AppBundle:PriceList pl
+                           JOIN pl.priceListProducts plp
+                           JOIN plp.product p
+                           WHERE pl.company = :company
+                           GROUP BY p.name")
+            ->setParameter('company', $companyId)
+            ->getResult();
+    }
 }
