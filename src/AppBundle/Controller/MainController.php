@@ -64,17 +64,27 @@ class MainController extends Controller
      * @Route("/view/{id}", name="view", requirements={"id"="\d+"})
      * @Security("has_role('ROLE_USER')")
      * @Template()
+     *
+     * @param Request $request
+     * @param $id
+     * @return array
      */
-    public function viewAction($id)
+    public function viewAction(Request $request, $id)
     {
         $em = $this->getDoctrine()->getManager();
+        $users = $em->getRepository('AppBundle:User')->findAll();
+
+        $userId    = $request->get('userId', null);
+        $startDate = $request->get('start_date', null);
+        $endDate   = $request->get('end_date', null);
+
         $priceList = $em->getRepository('AppBundle:PriceList')->findWithRelations($id);
 
         if (is_null($priceList)){
             throw new HttpException(Response::HTTP_NOT_FOUND);
         }
 
-        return ['priceList' => $priceList];
+        return ['priceList' => $priceList, 'users' => $users];
     }
 
     /**

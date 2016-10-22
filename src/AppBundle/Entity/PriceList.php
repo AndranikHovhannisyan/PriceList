@@ -38,7 +38,7 @@ class PriceList
     protected $user;
 
     /**
-     * @ORM\Column(name="perform_date", type="date", nullable=false)
+     * @ORM\Column(name="perform_date", type="datetime", nullable=false)
      */
     protected $performDate;
 
