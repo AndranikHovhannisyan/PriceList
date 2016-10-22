@@ -72,19 +72,13 @@ class MainController extends Controller
     public function viewAction(Request $request, $id)
     {
         $em = $this->getDoctrine()->getManager();
-        $users = $em->getRepository('AppBundle:User')->findAll();
-
-        $userId    = $request->get('userId', null);
-        $startDate = $request->get('start_date', null);
-        $endDate   = $request->get('end_date', null);
-
         $priceList = $em->getRepository('AppBundle:PriceList')->findWithRelations($id);
 
         if (is_null($priceList)){
             throw new HttpException(Response::HTTP_NOT_FOUND);
         }
 
-        return ['priceList' => $priceList, 'users' => $users];
+        return ['priceList' => $priceList];
     }
 
     /**
@@ -95,6 +89,18 @@ class MainController extends Controller
     public function listAction(Request $request)
     {
         $em = $this->getDoctrine()->getManager();
+        $users = $em->getRepository('AppBundle:User')->findAll();
+
+        $userId    = $request->get('user', null);
+        $startDate = $request->get('start_date', null);
+        $endDate   = $request->get('end_date', null);
+
+        if ($request->getMethod() == "POST"){
+
+//            $priceList = $em->getRepository('AppBundle:PriceList')->findWithRelations($id);
+        }
+
+
         $user = $this->isGranted('ROLE_ADMIN') ? null : $this->getUser();
         $priceListsQuery = $em->getRepository('AppBundle:PriceList')->findQueryByUser($user);
 
@@ -109,7 +115,13 @@ class MainController extends Controller
             $priceList->setTotal($totals[$id]['total']);
         }
 
-        return ['priceLists' => $pagination];
+        return [
+            'priceLists'  => $pagination,
+            'users'       => $users,
+            'user_id'     => $userId,
+            'start_date'  => $startDate,
+            'end_date'    => $endDate
+        ];
     }
 
     /**
@@ -123,7 +135,7 @@ class MainController extends Controller
         $companies = $em->getRepository('AppBundle:Company')->findAllIndexedById();
         $result    = [];
 
-        $companyId = $request->get('company', -1);
+        $companyId = $request->get('company', null);
         $startDate = $request->get('start_date', null);
         $endDate   = $request->get('end_date', null);
 

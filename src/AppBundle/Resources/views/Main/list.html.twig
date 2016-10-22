@@ -15,18 +15,18 @@
             </div>
             <div class="row">
                 <div class="col-md-3">
-                    <select name="user" class="form-control select2" required>
+                    <select name="user" class="form-control select2">
                         <option></option>
-                        {#{% for user in users %}#}
-                            {#<option value="{{ user.id }}" {% if companyId is not null and company.id == companyId %}selected="selected"{% endif %}>{{ company }}</option>#}
-                        {#{% endfor %}#}
+                        {% for user in users %}
+                            <option value="{{ user.id }}" {% if user_id is not null and user.id == user_id %}selected="selected"{% endif %}>{{ user.username }}</option>
+                        {% endfor %}
                     </select>
                 </div>
                 <div class="col-md-3">
-                    <input type="date" name="start_date" class="form-control" {#value="{{ start_date }}"#}/>
+                    <input type="date" name="start_date" class="form-control" value="{{ start_date }}"/>
                 </div>
                 <div class="col-md-3">
-                    <input type="date" name="end_date" class="form-control" {#value="{{ end_date }}"#}/>
+                    <input type="date" name="end_date" class="form-control" value="{{ end_date }}"/>
                 </div>
                 <div class="col-md-3">
                     <input type="submit" class="btn btn-primary" value="Filter" />
