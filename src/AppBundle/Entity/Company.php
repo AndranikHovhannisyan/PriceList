@@ -31,11 +31,6 @@ class Company
     protected $name;
 
     /**
-     * @ORM\Column(name="address", type="string", length=200, nullable=false)
-     */
-    protected $address;
-
-    /**
      * @ORM\OneToMany(targetEntity="PriceList", mappedBy="company")
      */
     protected $priceList;
@@ -50,7 +45,7 @@ class Company
 
     public function __toString()
     {
-        return $this->name ? $this->name . ' / ' . $this->address : '';
+        return $this->name ? $this->name : '';
     }
 
     /**
@@ -85,30 +80,6 @@ class Company
     public function getName()
     {
         return $this->name;
-    }
-
-    /**
-     * Set address
-     *
-     * @param string $address
-     *
-     * @return Company
-     */
-    public function setAddress($address)
-    {
-        $this->address = $address;
-
-        return $this;
-    }
-
-    /**
-     * Get address
-     *
-     * @return string
-     */
-    public function getAddress()
-    {
-        return $this->address;
     }
 
     /**

@@ -11,7 +11,7 @@ use FOS\UserBundle\Model\User as BaseUser;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="AppBundle\Entity\Repository\UserRepository")
  * @ORM\Table(name="fos_user")
  */
 class User extends BaseUser
@@ -38,5 +38,20 @@ class User extends BaseUser
         $this->setUsername($email);
 
         return $this;
+    }
+
+    /**
+     * Get id
+     *
+     * @return integer
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    public function __toString()
+    {
+        return $this->getUsername() ? $this->getUsername() : '';
     }
 }

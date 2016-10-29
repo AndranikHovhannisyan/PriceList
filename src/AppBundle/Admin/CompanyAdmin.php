@@ -18,7 +18,6 @@ class CompanyAdmin extends AbstractAdmin
         $datagridMapper
             ->add('id')
             ->add('name')
-            ->add('address')
         ;
     }
 
@@ -30,7 +29,6 @@ class CompanyAdmin extends AbstractAdmin
         $listMapper
             ->add('id')
             ->add('name')
-            ->add('address')
             ->add('_action', null, array(
                 'actions' => array(
                     'show' => array(),
@@ -48,7 +46,6 @@ class CompanyAdmin extends AbstractAdmin
     {
         $formMapper
             ->add('name')
-            ->add('address')
         ;
     }
 
@@ -60,7 +57,6 @@ class CompanyAdmin extends AbstractAdmin
         $showMapper
             ->add('id')
             ->add('name')
-            ->add('address')
         ;
     }
 }

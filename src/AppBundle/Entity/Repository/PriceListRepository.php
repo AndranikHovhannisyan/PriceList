@@ -24,7 +24,8 @@ class PriceListRepository extends \Doctrine\ORM\EntityRepository
             ->getOneOrNullResult();
     }
 
-    public function findQueryByUser($user)
+
+    public function findQueryByUser($user, $startDate, $endDate)
     {
         return $this->getEntityManager()
             ->createQuery("SELECT pl, plp, p, c
@@ -33,9 +34,13 @@ class PriceListRepository extends \Doctrine\ORM\EntityRepository
                            JOIN pl.priceListProducts plp
                            JOIN plp.product p
                            LEFT JOIN pl.company c
-                           WHERE pl.user = :user OR :user IS NULL
+                           WHERE (pl.user = :user OR :user IS NULL)
+                               AND (pl.performDate >= :startDate OR :startDate IS NULL)
+                               AND (pl.performDate <= :endDate OR :endDate IS NULL)
                            ORDER BY pl.id DESC")
-            ->setParameter('user', $user);
+            ->setParameter('user', $user)
+            ->setParameter('startDate', $startDate)
+            ->setParameter('endDate', $endDate);
     }
 
     public function findPriceListsTotal($priceListIds)
@@ -56,20 +61,23 @@ class PriceListRepository extends \Doctrine\ORM\EntityRepository
             ->getResult();
     }
 
-    public function findStatistic($companyId, $startDate, $endDate)
+    public function findStatistic($userId, $companyId, $startDate, $endDate)
     {
         $startDate = $startDate ? $startDate : null;
         $endDate = $endDate ? $endDate : null;
 
         return $this->getEntityManager()
-            ->createQuery("SELECT  p.id, p.name, p.price, COALESCE(SUM(plp.quantity * (pl.id / pl.id)), 0) as quantity
-                           FROM AppBundle:Product p
-                           LEFT JOIN AppBundle:PriceListProduct plp WITH plp.product = p
-                           LEFT JOIN plp.priceList pl WITH pl.company = :company
-                                      AND (pl.performDate >= :startDate OR :startDate IS NULL)
-                                      AND (pl.performDate <= :endDate OR :endDate IS NULL)
-                           GROUP BY p.name
+            ->createQuery("SELECT  p.id, p.name, p.price, SUM(plp.quantity) as quantity
+                           FROM AppBundle:priceList pl
+                           JOIN pl.priceListProducts plp
+                           JOIN plp.product p
+                           WHERE ((:company IS NOT NULL AND pl.company = :company) OR (:user IS NOT NULL AND pl.user = :user))
+                           AND plp.quantity != 0
+                           AND (pl.performDate >= :startDate OR :startDate IS NULL)
+                           AND (pl.performDate <= :endDate OR :endDate IS NULL)
+                           GROUP BY p.id
                            ORDER BY p.id")
+            ->setParameter('user', $userId)
             ->setParameter('company', $companyId)
             ->setParameter('startDate', $startDate)
             ->setParameter('endDate', $endDate)

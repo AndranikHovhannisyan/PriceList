@@ -2,12 +2,14 @@
 
 namespace AppBundle\Controller;
 
+use AppBundle\Entity\Company;
 use AppBundle\Entity\PriceList;
 use AppBundle\Entity\PriceListProduct;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -68,6 +70,7 @@ class MainController extends Controller
      * @param Request $request
      * @param $id
      * @return array
+     * @throws \Symfony\Component\HttpKernel\Exception\HttpException
      */
     public function viewAction(Request $request, $id)
     {
@@ -92,17 +95,15 @@ class MainController extends Controller
         $users = $em->getRepository('AppBundle:User')->findAll();
 
         $userId    = $request->get('user', null);
-        $startDate = $request->get('start_date', null);
-        $endDate   = $request->get('end_date', null);
+        $startDate = $request->get('start_date');
+        $endDate   = $request->get('end_date');
 
-        if ($request->getMethod() == "POST"){
+        $userId    = $userId    ? $userId    : null;
+        $startDate = $startDate ? $startDate : null;
+        $endDate   = $endDate   ? $endDate   : null;
 
-//            $priceList = $em->getRepository('AppBundle:PriceList')->findWithRelations($id);
-        }
-
-
-        $user = $this->isGranted('ROLE_ADMIN') ? null : $this->getUser();
-        $priceListsQuery = $em->getRepository('AppBundle:PriceList')->findQueryByUser($user);
+        $user = $this->isGranted('ROLE_ADMIN') ? $userId : $this->getUser();
+        $priceListsQuery = $em->getRepository('AppBundle:PriceList')->findQueryByUser($user, $startDate, $endDate);
 
         $paginator  = $this->get('knp_paginator');
         $pagination = $paginator->paginate($priceListsQuery, $request->query->getInt('page', 1), 15);
@@ -133,26 +134,70 @@ class MainController extends Controller
     {
         $em        = $this->getDoctrine()->getManager();
         $companies = $em->getRepository('AppBundle:Company')->findAllIndexedById();
+        $users     = $em->getRepository('AppBundle:User')->findAllIndexedById();
         $result    = [];
 
+        $userId    = $request->get('user', null);
         $companyId = $request->get('company', null);
         $startDate = $request->get('start_date', null);
         $endDate   = $request->get('end_date', null);
 
+        $userId    = $userId    ? $userId    : null;
+        $companyId = $companyId ? $companyId : null;
+        $startDate = $startDate ? $startDate : null;
+        $endDate   = $endDate   ? $endDate   : null;
+
         if ($request->getMethod() == "POST"){
-            if(is_null($companyId) || !isset($companies[$companyId])){
+            if (is_null($companyId) && is_null($userId)){
                 throw new HttpException(Response::HTTP_BAD_REQUEST);
             }
 
-            $result = $em->getRepository('AppBundle:PriceList')->findStatistic($companyId, $startDate, $endDate);
+            if (!is_null($companyId) && !is_null($userId)){
+                throw new HttpException(Response::HTTP_BAD_REQUEST);
+            }
+
+            if(!is_null($companyId) && !isset($companies[$companyId])){
+                throw new HttpException(Response::HTTP_BAD_REQUEST);
+            }
+
+            if(!is_null($userId) && !isset($users[$userId])){
+                throw new HttpException(Response::HTTP_BAD_REQUEST);
+            }
+
+            $result = $em->getRepository('AppBundle:PriceList')->findStatistic($userId, $companyId, $startDate, $endDate);
         }
 
         return [
-            'companyId' => $companyId,
+            'companyId'  => $companyId,
+            'userId'     => $userId,
             'start_date' => $startDate,
-            'end_date' => $endDate,
-            'companies' => $companies,
-            'result' => $result
+            'end_date'   => $endDate,
+            'companies'  => $companies,
+            'users'      => $users,
+            'result'     => $result
         ];
+    }
+
+
+    /**
+     * @Route("/add-company", name="add_company")
+     * @Method("POST")
+     * @Security("has_role('ROLE_USER')")
+     * @Template()
+     */
+    public function createCompanyAction(Request $request)
+    {
+        if (!($name = $request->get('company_name', null))){
+            throw new HttpException(Response::HTTP_BAD_REQUEST);
+        }
+
+        $em = $this->getDoctrine()->getManager();
+        $company = new Company();
+        $company->setName($name);
+
+        $em->persist($company);
+        $em->flush();
+
+        return $this->redirectToRoute('single');
     }
 }

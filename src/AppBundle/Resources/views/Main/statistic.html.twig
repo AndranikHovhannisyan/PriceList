@@ -11,26 +11,35 @@
     <div class="container content">
         <form method="POST" action="{{ path('statistic') }}">
             <div class="row">
+                <div class="col-md-3"><strong>User</strong></div>
                 <div class="col-md-3"><strong>Company</strong></div>
-                <div class="col-md-3"><strong>From</strong></div>
-                <div class="col-md-3"><strong>To</strong></div>
+                <div class="col-md-2"><strong>From</strong></div>
+                <div class="col-md-2"><strong>To</strong></div>
             </div>
             <div class="row">
                 <div class="col-md-3">
-                    <select name="company" class="form-control select2" required>
-                        <option></option>
+                    <select id="user-select" name="user" class="form-control select2">
+                        <option value=0></option>
+                        {% for user in users %}
+                            <option value="{{ user.id }}" {% if userId is not null and user.id == userId %}selected="selected"{% endif %}>{{ user }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select id="company-select" name="company" class="form-control select2">
+                        <option value=0></option>
                         {% for company in companies %}
                             <option value="{{ company.id }}" {% if companyId is not null and company.id == companyId %}selected="selected"{% endif %}>{{ company }}</option>
                         {% endfor %}
                     </select>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <input type="date" name="start_date" class="form-control" value="{{ start_date }}"/>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <input type="date" name="end_date" class="form-control" value="{{ end_date }}"/>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <input type="submit" class="btn btn-primary" value="Filter" />
                 </div>
             </div>
@@ -80,5 +89,17 @@
     <script src="{{ asset('/bundles/app/select2/js/select2.min.js') }}"></script>
     <script type="text/javascript">
         $('.select2').select2();
+    </script>
+    <script>
+        $('#user-select').on('change', function() {
+            if(this.value){
+                $('#company-select').val(null);
+            }
+        });
+        $('#company-select').on('change', function() {
+            if(this.value){
+                $('#user-select').val(null);
+            }
+        });
     </script>
 {% endblock %}

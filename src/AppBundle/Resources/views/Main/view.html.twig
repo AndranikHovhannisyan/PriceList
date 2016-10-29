@@ -24,7 +24,7 @@
             </tr>
 
             {% set totalPrice = 0 %}
-            {% for priceListProduct in priceList.priceListProducts %}
+            {% for priceListProduct in priceList.priceListProducts if priceListProduct.quantity != 0 %}
                 <tr>
                     <td>{{ priceListProduct.product.name }}</td>
                     <td>{{ priceListProduct.product.price }}</td>
