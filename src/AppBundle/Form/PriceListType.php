@@ -13,6 +13,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use AppBundle\Entity\PriceList;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 
 /**
  * Class PriceListType
@@ -30,9 +31,9 @@ class PriceListType extends AbstractType
             ->add('company')
             ->add('billingType', ChoiceType::class, array(
                 'choices' => array(
-                    PriceList::$BILLING_TYPES[PriceList::CASH]     => PriceList::CASH,
-                    PriceList::$BILLING_TYPES[PriceList::CREDIT]   => PriceList::CREDIT,
-                    PriceList::$BILLING_TYPES[PriceList::TRANSFER] => PriceList::TRANSFER
+                    PriceList::$BillingTypes[PriceList::CASH]     => PriceList::CASH,
+                    PriceList::$BillingTypes[PriceList::CREDIT]   => PriceList::CREDIT,
+                    PriceList::$BillingTypes[PriceList::TRANSFER] => PriceList::TRANSFER
                 )
             ))
             ->add('priceListProducts', CollectionType::class, array(
@@ -41,6 +42,7 @@ class PriceListType extends AbstractType
                 'allow_delete' => true,
                 'prototype'    => true
             ))
+            ->add('comment', TextareaType::class)
         ;
     }
 

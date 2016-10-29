@@ -22,7 +22,7 @@ class PriceList
     const TRANSFER = 1;
     const CREDIT   = 2;
 
-    public static $BILLING_TYPES = [
+    public static $BillingTypes = [
         PriceList::CASH    => 'Կանխիկ',
         PriceList::CREDIT  => 'Ապառիկ',
         PriceList::TRANSFER => 'Փոխանցումով'
@@ -61,6 +61,11 @@ class PriceList
      * @ORM\Column(type="smallint", name="billing_type", nullable=false)
      */
     protected $billingType = self::CASH;
+
+    /**
+     * @ORM\Column(type="string", name="comment", length=500, nullable=true)
+     */
+    protected $comment;
 
     /**
      * @var
@@ -243,6 +248,22 @@ class PriceList
 
     public function getBillingTypes()
     {
-        return self::$BILLING_TYPES;
+        return self::$BillingTypes;
+    }
+
+    /**
+     * @param mixed $comment
+     */
+    public function setComment($comment)
+    {
+        $this->comment = $comment;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getComment()
+    {
+        return $this->comment;
     }
 }

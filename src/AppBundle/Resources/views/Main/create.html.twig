@@ -84,6 +84,10 @@
 
             </table>
 
+            {{ form_widget(form.comment, {'attr': {'class': 'form-control'} }) }}
+
+            <br />
+
             {{ form_widget(form._token) }}
             <input type="submit" class="btn btn-primary" />
         </form>

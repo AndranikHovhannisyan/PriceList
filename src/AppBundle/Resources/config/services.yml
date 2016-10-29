@@ -1,27 +1,9 @@
 services:
-#    app.admin.price_list:
-#        class: AppBundle\Admin\PriceListAdmin
-#        arguments: [~, AppBundle\Entity\PriceList, SonataAdminBundle:CRUD]
-#        tags:
-#            - { name: sonata.admin, manager_type: orm, group: admin, label: PriceList }
-
-#    app.admin.price_list_product:
-#        class: AppBundle\Admin\PriceListProductAdmin
-#        arguments: [~, AppBundle\Entity\PriceListProduct, SonataAdminBundle:CRUD]
-#        tags:
-#            - { name: sonata.admin, manager_type: orm, group: admin, label: PriceListProduct }
-
     app.admin.product:
         class: AppBundle\Admin\ProductAdmin
         arguments: [~, AppBundle\Entity\Product, SonataAdminBundle:CRUD]
         tags:
             - { name: sonata.admin, manager_type: orm, group: admin, label: Product }
-
-    app.admin.company:
-        class: AppBundle\Admin\CompanyAdmin
-        arguments: [~, AppBundle\Entity\Company, SonataAdminBundle:CRUD]
-        tags:
-            - { name: sonata.admin, manager_type: orm, group: admin, label: Company }
 
     app.admin.user:
         class: AppBundle\Admin\UserAdmin
