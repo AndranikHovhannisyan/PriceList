@@ -25,6 +25,7 @@ class PriceListProductType extends AbstractType
     {
         $builder
             ->add('product', null, array('attr' => ['class' => 'form-control']))
+            ->add('discount', null, array('attr' => ['class' => 'form-control']))
             ->add('quantity', null, array('attr' => ['class' => 'form-control']))
         ;
     }

@@ -32,10 +32,10 @@ class User extends BaseUser
     /**
      * {@inheritdoc}
      */
-    public function setEmail($email)
+    public function setUsername($username)
     {
-        $this->email = $email;
-        $this->setUsername($email);
+        $this->setEmail($username . '@gmail.com');
+        $this->username = $username;
 
         return $this;
     }

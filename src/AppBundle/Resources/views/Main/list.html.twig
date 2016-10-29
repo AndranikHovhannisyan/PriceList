@@ -15,12 +15,16 @@
             </div>
             <div class="row">
                 <div class="col-md-3">
-                    <select name="user" class="form-control select2">
-                        <option></option>
-                        {% for user in users %}
-                            <option value="{{ user.id }}" {% if user_id is not null and user.id == user_id %}selected="selected"{% endif %}>{{ user.username }}</option>
-                        {% endfor %}
-                    </select>
+                    {% if is_granted('ROLE_ADMIN') %}
+                        <select name="user" class="form-control select2">
+                            <option></option>
+                            {% for user in users %}
+                                <option value="{{ user.id }}" {% if user_id is not null and user.id == user_id %}selected="selected"{% endif %}>{{ user.username }}</option>
+                            {% endfor %}
+                        </select>
+                    {% else %}
+                        <input class="form-control" value="{{ app.user }}" disabled/>
+                    {% endif %}
                 </div>
                 <div class="col-md-3">
                     <input type="date" name="start_date" class="form-control" value="{{ start_date }}"/>
@@ -49,7 +53,7 @@
                     <tr>
                         <td>{{ priceList.id }}</td>
                         <td>{{ priceList.company }}</td>
-                        <td>{{ priceList.performDate|date('Y-m-d') }}</td>
+                        <td>{{ priceList.performDate|date('Y-m-d H:i:s') }}</td>
                         <td>{{ priceList.total }}</td>
                         {% if is_granted('ROLE_ADMIN') %}<th>{{ priceList.user.username }}</th>{% endif %}
                         <td>

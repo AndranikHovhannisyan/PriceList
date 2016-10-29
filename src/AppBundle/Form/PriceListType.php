@@ -10,8 +10,9 @@ namespace AppBundle\Form;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use AppBundle\Form\PriceListProductType;
+use AppBundle\Entity\PriceList;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 
 /**
  * Class PriceListType
@@ -27,6 +28,13 @@ class PriceListType extends AbstractType
     {
         $builder
             ->add('company')
+            ->add('billingType', ChoiceType::class, array(
+                'choices' => array(
+                    PriceList::$BILLING_TYPES[PriceList::CASH]     => PriceList::CASH,
+                    PriceList::$BILLING_TYPES[PriceList::CREDIT]   => PriceList::CREDIT,
+                    PriceList::$BILLING_TYPES[PriceList::TRANSFER] => PriceList::TRANSFER
+                )
+            ))
             ->add('priceListProducts', CollectionType::class, array(
                 'entry_type' => PriceListProductType::class,
                 'allow_add'    => true,

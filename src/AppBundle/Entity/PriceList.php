@@ -18,6 +18,16 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class PriceList
 {
+    const CASH     = 0;
+    const TRANSFER = 1;
+    const CREDIT   = 2;
+
+    public static $BILLING_TYPES = [
+        PriceList::CASH    => 'Կանխիկ',
+        PriceList::CREDIT  => 'Ապառիկ',
+        PriceList::TRANSFER => 'Փոխանցումով'
+    ];
+
     /**
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
@@ -46,6 +56,11 @@ class PriceList
      * @ORM\OneToMany(targetEntity="PriceListProduct", mappedBy="priceList", cascade={"persist", "remove"})
      */
     protected $priceListProducts;
+
+    /**
+     * @ORM\Column(type="smallint", name="billing_type", nullable=false)
+     */
+    protected $billingType = self::CASH;
 
     /**
      * @var
@@ -208,5 +223,26 @@ class PriceList
     public function getTotal()
     {
         return $this->total;
+    }
+
+    /**
+     * @param mixed $billingType
+     */
+    public function setBillingType($billingType)
+    {
+        $this->billingType = $billingType;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getBillingType()
+    {
+        return $this->billingType;
+    }
+
+    public function getBillingTypes()
+    {
+        return self::$BILLING_TYPES;
     }
 }

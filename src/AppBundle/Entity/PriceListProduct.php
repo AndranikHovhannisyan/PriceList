@@ -40,6 +40,11 @@ class PriceListProduct
     protected $product;
 
     /**
+     * @ORM\Column(name="discount", type="integer", nullable=true)
+     */
+    protected $discount;
+
+    /**
      * @ORM\Column(name="quantity", type="integer", nullable=false)
      */
     protected $quantity;
@@ -124,5 +129,21 @@ class PriceListProduct
     public function getProduct()
     {
         return $this->product;
+    }
+
+    /**
+     * @param mixed $discount
+     */
+    public function setDiscount($discount)
+    {
+        $this->discount = $discount;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getDiscount()
+    {
+        return $this->discount;
     }
 }
