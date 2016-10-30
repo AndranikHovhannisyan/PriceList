@@ -99,7 +99,7 @@ class MainController extends Controller
             $sheet->getColumnDimension('B')->setWidth(10);
             $sheet->getColumnDimension('C')->setWidth(10);
             $sheet->getColumnDimension('D')->setWidth(10);
-            $sheet->getColumnDimension('E')->setWidth(10);
+            $sheet->getColumnDimension('E')->setWidth(15);
 
             $sheet->getDefaultStyle()->getAlignment()
                 ->setHorizontal(\PHPExcel_Style_Alignment::HORIZONTAL_LEFT)
@@ -152,7 +152,7 @@ class MainController extends Controller
             $sheet->getColumnDimension('B')->setWidth(10);
             $sheet->getColumnDimension('C')->setWidth(10);
             $sheet->getColumnDimension('D')->setWidth(10);
-            $sheet->getColumnDimension('E')->setWidth(10);
+            $sheet->getColumnDimension('E')->setWidth(15);
 
             $sheet->getDefaultStyle()->getAlignment()
                 ->setHorizontal(\PHPExcel_Style_Alignment::HORIZONTAL_LEFT)
@@ -187,11 +187,22 @@ class MainController extends Controller
      */
     private function singleExport($priceList, $sheet, $startRow)
     {
-        $sheet->mergeCells("A$startRow:E$startRow")
+        $sheet->mergeCells("A$startRow:D$startRow")
             ->setCellValue("A$startRow", $priceList->getCompany() . ' '
                 . $priceList->getPerformDate()->format('Y-m-d') . '    N:' . $priceList->getId());
 
         $sheet->getStyle("A$startRow")->getFont()->setBold(true);
+
+        $sheet->setCellValue("E$startRow", PriceList::$BillingTypes[$priceList->getBillingType()]);
+        $sheet->getStyle("E$startRow")->getFont()->setBold(true);
+
+        for ($j = 65; $j <= 69; $j++) {
+            $borders = $sheet->getStyle(chr($j) . $startRow)->getBorders();
+            $borders->getTop()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
+            $borders->getBottom()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
+            $borders->getLeft()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
+            $borders->getRight()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
+        }
 
         $startRow++;
 
