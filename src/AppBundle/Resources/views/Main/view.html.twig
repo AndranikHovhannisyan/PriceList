@@ -50,7 +50,15 @@
             </tr>
         </table>
 
-        {{ priceList.comment }}
+        <div class="row">
+            <div class="col-md-11">
+                {{ priceList.comment }}
+            </div>
+            <div class="col-md-1">
+                <a href="{{ path('view', {'id': priceList.id, 'export': 1}) }}" class="btn btn-primary">Export</a>
+            </div>
+        </div>
+
 
     </div>
 {% endblock %}

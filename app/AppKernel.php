@@ -25,6 +25,7 @@ class AppKernel extends Kernel
             new FOS\UserBundle\FOSUserBundle(),
             new Bazinga\Bundle\FakerBundle\BazingaFakerBundle(),
             new Knp\Bundle\PaginatorBundle\KnpPaginatorBundle(),
+            new Liuggio\ExcelBundle\LiuggioExcelBundle(),
         ];
 
         if (in_array($this->getEnvironment(), ['dev', 'test'], true)) {

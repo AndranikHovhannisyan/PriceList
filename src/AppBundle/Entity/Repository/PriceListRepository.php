@@ -10,8 +10,12 @@ namespace AppBundle\Entity\Repository;
  */
 class PriceListRepository extends \Doctrine\ORM\EntityRepository
 {
-    public function findWithRelations($id)
+    public function findWithRelations($ids)
     {
+        if (!is_array($ids)){
+            $ids = [$ids];
+        }
+
         return $this->getEntityManager()
             ->createQuery("SELECT pl, plp, p, c
                            FROM AppBundle:PriceList pl
@@ -19,9 +23,9 @@ class PriceListRepository extends \Doctrine\ORM\EntityRepository
                            JOIN pl.priceListProducts plp
                            JOIN plp.product p
                            LEFT JOIN pl.company c
-                           WHERE pl.id = :id")
-            ->setParameter('id', $id)
-            ->getOneOrNullResult();
+                           WHERE pl.id IN (:ids)")
+            ->setParameter('ids', $ids)
+            ->getResult();
     }
 
 

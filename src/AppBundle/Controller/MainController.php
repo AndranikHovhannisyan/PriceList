@@ -40,6 +40,7 @@ class MainController extends Controller
         }
         else {
             $priceList = $em->getRepository('AppBundle:PriceList')->findWithRelations($id);
+            $priceList = array_values($priceList)[0];
         }
 
         $form = $this->createForm(PriceListType::class, $priceList);
@@ -76,12 +77,190 @@ class MainController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
         $priceList = $em->getRepository('AppBundle:PriceList')->findWithRelations($id);
+        $priceList = array_values($priceList)[0];
 
         if (is_null($priceList)){
             throw new HttpException(Response::HTTP_NOT_FOUND);
         }
 
+        if ($request->get('export')){
+
+            $phpExcelObject =  $this->get('phpexcel')->createPHPExcelObject();
+
+            $phpExcelObject->getProperties()
+                ->setCreator($priceList->getUser())
+                ->setLastModifiedBy("Maarten Balliauw")
+                ->setTitle($priceList->getCompany())
+                ->setSubject("Office 2007 XLSX Test Document");
+
+            $sheet = $phpExcelObject->setActiveSheetIndex(0);
+
+            $sheet->getColumnDimension('A')->setWidth(50);
+            $sheet->getColumnDimension('B')->setWidth(10);
+            $sheet->getColumnDimension('C')->setWidth(10);
+            $sheet->getColumnDimension('D')->setWidth(10);
+            $sheet->getColumnDimension('E')->setWidth(10);
+
+            $sheet->getDefaultStyle()->getAlignment()
+                ->setHorizontal(\PHPExcel_Style_Alignment::HORIZONTAL_LEFT)
+                ->setVertical(\PHPExcel_Style_Alignment::VERTICAL_CENTER)
+                ->setWrapText(true);
+
+            $this->singleExport($priceList, $sheet, 1);
+
+            $writer = $this->get('phpexcel')->createWriter($phpExcelObject, 'Excel5');
+
+            $response = $this->get('phpexcel')->createStreamedResponse($writer);
+            $response->headers->set('Content-Type', 'text/vnd.ms-excel; charset=utf-8');
+            $response->headers->set('Content-Disposition', 'attachment;filename='. $priceList->getCompany() . '_' . $priceList->getPerformDate()->format('Y:m:d') . '.xls');
+            $response->headers->set('Pragma', 'public');
+            $response->headers->set('Cache-Control', 'maxage=1');
+
+            return $response;
+        }
+
         return ['priceList' => $priceList];
+    }
+
+    /**
+     * @Route("/list-export", name="list_export")
+     * @Method("POST")
+     * @Security("has_role('ROLE_USER')")
+     * @Template()
+     */
+    public function listExportAction(Request $request)
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        $ids = $request->get('ids');
+
+        if (count($ids) > 0){
+            $ids = array_keys($ids);
+            $priceLists = $em->getRepository('AppBundle:PriceList')->findWithRelations($ids);
+
+            $phpExcelObject =  $this->get('phpexcel')->createPHPExcelObject();
+
+            $phpExcelObject->getProperties()
+                ->setCreator("Author")
+                ->setLastModifiedBy("Maarten Balliauw")
+                ->setTitle("Title")
+                ->setSubject("Office 2007 XLSX Test Document");
+
+            $sheet = $phpExcelObject->setActiveSheetIndex(0);
+
+            $sheet->getColumnDimension('A')->setWidth(50);
+            $sheet->getColumnDimension('B')->setWidth(10);
+            $sheet->getColumnDimension('C')->setWidth(10);
+            $sheet->getColumnDimension('D')->setWidth(10);
+            $sheet->getColumnDimension('E')->setWidth(10);
+
+            $sheet->getDefaultStyle()->getAlignment()
+                ->setHorizontal(\PHPExcel_Style_Alignment::HORIZONTAL_LEFT)
+                ->setVertical(\PHPExcel_Style_Alignment::VERTICAL_CENTER)
+                ->setWrapText(true);
+
+            $lastRow = 1;
+            foreach($priceLists as $priceList){
+                $lastRow = $this->singleExport($priceList, $sheet, $lastRow);
+                $lastRow += 5;
+            }
+
+            $writer = $this->get('phpexcel')->createWriter($phpExcelObject, 'Excel5');
+
+            $response = $this->get('phpexcel')->createStreamedResponse($writer);
+            $response->headers->set('Content-Type', 'text/vnd.ms-excel; charset=utf-8');
+            $response->headers->set('Content-Disposition', 'attachment;filename=export.xls');
+            $response->headers->set('Pragma', 'public');
+            $response->headers->set('Cache-Control', 'maxage=1');
+
+            return $response;
+        }
+
+        $referer = $request->headers->get('referer');
+        return $this->redirect($referer);
+    }
+
+    /**
+     * @param $priceList
+     * @param $sheet
+     * @param $startRow
+     */
+    private function singleExport($priceList, $sheet, $startRow)
+    {
+        $sheet->mergeCells("A$startRow:E$startRow")
+            ->setCellValue("A$startRow", $priceList->getCompany() . ' '
+                . $priceList->getPerformDate()->format('Y-m-d') . '    N:' . $priceList->getId());
+
+        $sheet->getStyle("A$startRow")->getFont()->setBold(true);
+
+        $startRow++;
+
+        $sheet->getStyle("A$startRow:E$startRow")->getFont()->setBold(true);
+
+        $sheet
+            ->setCellValue('A' . $startRow, 'Ապրանքի անվանում')
+            ->setCellValue('B' . $startRow, 'Միավորի գին')
+            ->setCellValue('C' . $startRow, 'Զեղչ')
+            ->setCellValue('D' . $startRow, 'Քանակ')
+            ->setCellValue('E' . $startRow, 'Արժեքը');
+
+
+        for ($j = 65; $j <= 69; $j++) {
+            $borders = $sheet->getStyle(chr($j) . $startRow)->getBorders();
+            $borders->getTop()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
+            $borders->getBottom()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
+            $borders->getLeft()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
+            $borders->getRight()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
+        }
+
+        $totalPrice = 0;
+        $i = $startRow + 1;
+        foreach($priceList->getPriceListProducts() as $priceListProduct){
+
+            if ($priceListProduct->getQuantity() == 0){
+                continue;
+            }
+
+            $price = $priceListProduct->getProduct()->getPrice() * $priceListProduct->getQuantity()
+                * (100 - $priceListProduct->getDiscount()) / 100;
+
+            $sheet
+                ->setCellValue('A' . $i, $priceListProduct->getProduct()->getName())
+                ->setCellValue('B' . $i, $priceListProduct->getProduct()->getPrice())
+                ->setCellValue('C' . $i, $priceListProduct->getDiscount() . ($priceListProduct->getDiscount() ? '%' : ''))
+                ->setCellValue('D' . $i, $priceListProduct->getQuantity())
+                ->setCellValue('E' . $i, $price);
+
+            for ($j = 65; $j <= 69; $j++) {
+                $borders = $sheet->getStyle(chr($j) . $i)->getBorders();
+                $borders->getTop()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
+                $borders->getBottom()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
+                $borders->getLeft()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
+                $borders->getRight()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
+            }
+
+            $i++;
+            $totalPrice +=$price;
+        }
+
+        $sheet
+            ->setCellValue('D' . $i, "Total Price")
+            ->setCellValue('E' . $i, $totalPrice);
+
+        $sheet->getStyle("D$i:E$i")->getFont()->setBold(true);
+
+        $sheet->mergeCells("A$i:C$i")
+            ->setCellValue("A$i", $priceList->getComment());
+
+        for ($j = 65; $j <= 69; $j++) {
+            $borders = $sheet->getStyle(chr($j) . $i)->getBorders();
+            $borders->getTop()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
+            $borders->getBottom()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
+            $borders->getLeft()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
+            $borders->getRight()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
+        }
+
+        return $i + 1;
     }
 
     /**
@@ -200,4 +379,6 @@ class MainController extends Controller
 
         return $this->redirectToRoute('single');
     }
+
+
 }
