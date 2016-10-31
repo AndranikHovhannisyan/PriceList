@@ -42,7 +42,7 @@ class PriceListType extends AbstractType
                 'allow_delete' => true,
                 'prototype'    => true
             ))
-            ->add('comment', TextareaType::class)
+            ->add('comment', TextareaType::class, array('required' => false))
         ;
     }
 

@@ -13,7 +13,7 @@ use Doctrine\ORM\Mapping as ORM;
  * Class Product
  * @package AppBundle\Entity
  *
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="AppBundle\Entity\Repository\ProductRepository")
  * @ORM\Table(name="product")
  */
 class Product
@@ -31,7 +31,7 @@ class Product
     protected $name;
 
     /**
-     * @ORM\Column(name="code", type="string", length=20, nullable=false)
+     * @ORM\Column(name="code", type="string", length=20, nullable=true)
      */
     protected $code;
 

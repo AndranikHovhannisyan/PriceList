@@ -27,10 +27,10 @@ class MainController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
         $companies = $em->getRepository('AppBundle:Company')->findAllIndexedById();
+        $products = $em->getRepository('AppBundle:Product')->findAllIndexedById();
 
         if (is_null($id)){
             $priceList = new PriceList();
-            $products = $em->getRepository('AppBundle:Product')->findAll();
             foreach($products as $product){
                 $priceListProduct = new PriceListProduct();
                 $priceListProduct->setProduct($product);
@@ -53,6 +53,23 @@ class MainController extends Controller
             foreach($priceList->getPriceListProducts() as $priceListProduct){
                 $priceListProduct->setPriceList($priceList);
             }
+
+            $zeroProductIds = $request->get('zero_products');
+            $zeroProductCounts = $request->get('zero_products_count');
+
+            foreach($zeroProductIds as $key => $zeroProductId){
+                if (!$zeroProductId || !isset($products[$zeroProductId]) || !$zeroProductCounts[$key]){
+                    continue;
+                }
+
+                $priceListProduct = new PriceListProduct();
+                $priceListProduct->setProduct($products[$zeroProductId]);
+                $priceListProduct->setQuantity($zeroProductCounts[$key]);
+                $priceListProduct->setDiscount(100);
+                $priceListProduct->setPriceList($priceList);
+                $priceList->addPriceListProduct($priceListProduct);
+            }
+
 
             $em->persist($priceList);
             $em->flush();
@@ -224,22 +241,28 @@ class MainController extends Controller
             $borders->getRight()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
         }
 
+        $zeroPriceListProducts = $priceList->getZeroPriceListProducts();
         $totalPrice = 0;
         $i = $startRow + 1;
         foreach($priceList->getPriceListProducts() as $priceListProduct){
 
-            if ($priceListProduct->getQuantity() == 0){
+            if ($priceListProduct->getQuantity() == 0 || $priceListProduct->getDiscount() == 100){
                 continue;
             }
 
             $price = $priceListProduct->getProduct()->getPrice() * $priceListProduct->getQuantity()
                 * (100 - $priceListProduct->getDiscount()) / 100;
 
+            $zeroCount = 0;
+            if (isset($zeroPriceListProducts[$priceListProduct->getProduct()->getId()])){
+                $zeroCount = $zeroPriceListProducts[$priceListProduct->getProduct()->getId()]->getQuantity();
+            }
+
             $sheet
                 ->setCellValue('A' . $i, $priceListProduct->getProduct()->getName())
                 ->setCellValue('B' . $i, $priceListProduct->getProduct()->getPrice())
                 ->setCellValue('C' . $i, $priceListProduct->getDiscount() . ($priceListProduct->getDiscount() ? '%' : ''))
-                ->setCellValue('D' . $i, $priceListProduct->getQuantity())
+                ->setCellValue('D' . $i, $priceListProduct->getQuantity() . ($zeroCount ? ' + ' . $zeroCount . '(-100%)' : ""))
                 ->setCellValue('E' . $i, $price);
 
             for ($j = 65; $j <= 69; $j++) {

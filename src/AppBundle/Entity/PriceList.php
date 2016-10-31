@@ -155,6 +155,22 @@ class PriceList
     }
 
     /**
+     * @return array
+     */
+    public function getZeroPriceListProducts()
+    {
+        $priceListProducts = [];
+        foreach($this->priceListProducts as $priceListProduct){
+            if ($priceListProduct->getDiscount() == 100){
+                $priceListProducts[$priceListProduct->getProduct()->getId()] = $priceListProduct;
+            }
+        }
+
+        return $priceListProducts;
+    }
+
+
+    /**
      * @param mixed $user
      */
     public function setUser($user)
