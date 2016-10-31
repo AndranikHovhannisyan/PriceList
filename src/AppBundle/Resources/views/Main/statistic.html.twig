@@ -60,11 +60,15 @@
                 <tr>
                     <td>{{ data['name'] }}</td>
                     <td>{{ data['price'] }}</td>
-                    <td>{{ data['quantity']|round }}</td>
+                    <td>{{ data['quantity'] }}</td>
 
-                    {% set price = data['quantity'] * data['price'] %}
-                    {% set totalPrice = totalPrice + price %}
-                    <td>{{ price }}</td>
+                    {#{% set price = 0 %}#}
+                    {#{% for qnt in data['quantities'] %}#}
+                        {#{% set price = price + (qnt['quantity'] * data['price'] * (100 - qnt['discount']) / 100) %}#}
+                    {#{% endfor %}#}
+
+                    {% set totalPrice = totalPrice + data['calculatedPrice'] %}
+                    <td>{{ data['calculatedPrice'] }}</td>
                 </tr>
 
                 {% set i = i + 1 %}
@@ -74,8 +78,8 @@
                 <tr>
                     <td></td>
                     <td></td>
-                    <td>Total Price</td>
-                    <td>{{ totalPrice }}</td>
+                    <td style="font-size: medium"><strong>Total Price</strong></td>
+                    <td style="font-size: medium" class="total_price"><strong>{{ totalPrice }}</strong></td>
                 </tr>
             {% endif %}
 

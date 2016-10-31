@@ -67,11 +67,11 @@ class PriceListRepository extends \Doctrine\ORM\EntityRepository
 
     public function findStatistic($userId, $companyId, $startDate, $endDate)
     {
-        $startDate = $startDate ? $startDate : null;
-        $endDate = $endDate ? $endDate : null;
+        $startDate = $startDate ? $startDate . ' 00:00:00' : null;
+        $endDate = $endDate ? $endDate . ' 23:59:59' : null;
 
-        return $this->getEntityManager()
-            ->createQuery("SELECT  p.id, p.name, p.price, SUM(plp.quantity) as quantity
+        $result = $this->getEntityManager()
+            ->createQuery("SELECT  p.id, p.name, p.price, plp.discount, SUM(plp.quantity) as quantity
                            FROM AppBundle:priceList pl
                            JOIN pl.priceListProducts plp
                            JOIN plp.product p
@@ -79,12 +79,28 @@ class PriceListRepository extends \Doctrine\ORM\EntityRepository
                            AND plp.quantity != 0
                            AND (pl.performDate >= :startDate OR :startDate IS NULL)
                            AND (pl.performDate <= :endDate OR :endDate IS NULL)
-                           GROUP BY p.id
-                           ORDER BY p.id")
+                           GROUP BY p.id, plp.discount
+                           ORDER BY p.name")
             ->setParameter('user', $userId)
             ->setParameter('company', $companyId)
             ->setParameter('startDate', $startDate)
             ->setParameter('endDate', $endDate)
             ->getResult();
+
+        $products = [];
+        foreach($result as $data){
+            if (!isset($products[$data['id']])){
+                $products[$data['id']] = $data;
+                $products[$data['id']]['quantity'] = $data['quantity'] . ($data['discount'] ? "(-{$data['discount']}%) " : ' ');
+                $products[$data['id']]['calculatedPrice'] = 0;
+            }
+            else {
+                $products[$data['id']]['quantity'] .= '+ ' . $data['quantity'] . ($data['discount'] ? "(-{$data['discount']}%) " : ' ');
+            }
+
+            $products[$data['id']]['calculatedPrice'] += $data['price'] * $data['quantity'] * (100 - $data['discount']) / 100;
+        }
+
+        return $products;
     }
 }
