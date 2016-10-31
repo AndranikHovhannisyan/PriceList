@@ -378,6 +378,11 @@ class MainController extends Controller
             }
 
             $result = $em->getRepository('AppBundle:PriceList')->findStatistic($userId, $companyId, $startDate, $endDate);
+
+            if ($request->get('export_btn')){
+                return $this->exportStatistic($result, isset($companies[$companyId]) ? $companies[$companyId] : null,
+                                              isset($users[$userId]) ? $users[$userId] : null, $startDate, $endDate);
+            }
         }
 
         return [
@@ -389,6 +394,110 @@ class MainController extends Controller
             'users'      => $users,
             'result'     => $result
         ];
+    }
+
+    private function exportStatistic($result, $company, $user, $startDate, $endDate)
+    {
+        $phpExcelObject =  $this->get('phpexcel')->createPHPExcelObject();
+
+        $phpExcelObject->getProperties()
+            ->setCreator("Author")
+            ->setLastModifiedBy("Maarten Balliauw")
+            ->setTitle("Title")
+            ->setSubject("Office 2007 XLSX Test Document");
+
+        $sheet = $phpExcelObject->setActiveSheetIndex(0);
+
+        $sheet->getColumnDimension('A')->setWidth(50);
+        $sheet->getColumnDimension('B')->setWidth(10);
+        $sheet->getColumnDimension('C')->setWidth(15);
+        $sheet->getColumnDimension('D')->setWidth(15);
+
+        $sheet->getDefaultStyle()->getAlignment()
+            ->setHorizontal(\PHPExcel_Style_Alignment::HORIZONTAL_LEFT)
+            ->setVertical(\PHPExcel_Style_Alignment::VERTICAL_CENTER)
+            ->setWrapText(true);
+
+
+
+        $sheet->mergeCells("A1:D1")
+            ->setCellValue("A1", $company . " " . $user . " " . $startDate . (($startDate || $endDate) ? "->" : "") . $endDate);
+
+        $sheet->getStyle("A1")->getFont()->setBold(true);
+
+        for ($j = 65; $j <= 68; $j++) {
+            $borders = $sheet->getStyle(chr($j) . '1')->getBorders();
+            $borders->getTop()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
+            $borders->getBottom()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
+            $borders->getLeft()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
+            $borders->getRight()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
+        }
+
+        $sheet->getStyle("A1:D1")->getFont()->setBold(true);
+
+        $sheet
+            ->setCellValue('A2', 'Ապրանքի անվանում')
+            ->setCellValue('B2', 'Միավորի գին')
+            ->setCellValue('C2', 'Քանակ')
+            ->setCellValue('D2', 'Արժեքը');
+
+
+        for ($j = 65; $j <= 68; $j++) {
+            $borders = $sheet->getStyle(chr($j) . '2')->getBorders();
+            $borders->getTop()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
+            $borders->getBottom()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
+            $borders->getLeft()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
+            $borders->getRight()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
+        }
+
+        $totalPrice = 0;
+        $i = 3;
+        foreach($result as $data){
+
+            $sheet
+                ->setCellValue('A' . $i, $data['name'])
+                ->setCellValue('B' . $i, $data['price'])
+                ->setCellValue('C' . $i, $data['quantity'])
+                ->setCellValue('D' . $i, $data['calculatedPrice']);
+
+            for ($j = 65; $j <= 68; $j++) {
+                $borders = $sheet->getStyle(chr($j) . $i)->getBorders();
+                $borders->getTop()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
+                $borders->getBottom()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
+                $borders->getLeft()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
+                $borders->getRight()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
+            }
+
+            $i++;
+            $totalPrice += $data['calculatedPrice'];
+        }
+
+        $sheet
+            ->setCellValue('C' . $i, "Total Price")
+            ->setCellValue('D' . $i, $totalPrice);
+
+        $sheet->getStyle("D$i:E$i")->getFont()->setBold(true);
+
+        $sheet->mergeCells("A$i:C$i");
+
+        for ($j = 65; $j <= 68; $j++) {
+            $borders = $sheet->getStyle(chr($j) . $i)->getBorders();
+            $borders->getTop()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
+            $borders->getBottom()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
+            $borders->getLeft()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
+            $borders->getRight()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
+        }
+
+
+        $writer = $this->get('phpexcel')->createWriter($phpExcelObject, 'Excel5');
+
+        $response = $this->get('phpexcel')->createStreamedResponse($writer);
+        $response->headers->set('Content-Type', 'text/vnd.ms-excel; charset=utf-8');
+        $response->headers->set('Content-Disposition', 'attachment; filename=export.xls');
+        $response->headers->set('Pragma', 'public');
+        $response->headers->set('Cache-Control', 'maxage=1');
+
+        return $response;
     }
 
 
