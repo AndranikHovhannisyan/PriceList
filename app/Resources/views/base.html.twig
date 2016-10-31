@@ -13,14 +13,14 @@
             <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-9">
                 <ul class="nav navbar-nav">
                     <li class="active">
-                        <a href="{{ path('list') }}">List</a>
+                        <a href="{{ path('list') }}">Ցանկ</a>
                     </li>
                     <li>
-                        <a href="{{ path('single') }}">Add new</a>
+                        <a href="{{ path('single') }}">Ավելացնել</a>
                     </li>
                     {% if is_granted('ROLE_ADMIN') %}
                         <li>
-                            <a href="{{ path('statistic') }}">Statistic</a>
+                            <a href="{{ path('statistic') }}">Ստատիստիկա</a>
                         </li>
                     {% endif %}
                     <li>

@@ -9,7 +9,7 @@
     <div class="container content">
         <form method="POST" action="{{ path('list') }}">
             <div class="row">
-                <div class="col-md-3"><strong>User</strong></div>
+                <div class="col-md-3"><strong>Աշխատակից</strong></div>
                 <div class="col-md-3"><strong>From</strong></div>
                 <div class="col-md-3"><strong>To</strong></div>
             </div>
@@ -44,10 +44,10 @@
                 <table class="table table-striped table-bordered">
                     <tr>
                         <th>Id</th>
-                        <th>Company</th>
-                        <th>Date</th>
-                        <th>Total</th>
-                        {% if is_granted('ROLE_ADMIN') %}<th>User</th>{% endif %}
+                        <th>Խանութ</th>
+                        <th>Ամսաթիվ</th>
+                        <th>Գումարը</th>
+                        {% if is_granted('ROLE_ADMIN') %}<th>Աշխատակից</th>{% endif %}
                         <th>Actions</th>
                         <th></th>
                     </tr>
