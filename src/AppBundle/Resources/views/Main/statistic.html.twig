@@ -11,13 +11,13 @@
     <div class="container content">
         <form method="POST" action="{{ path('statistic') }}">
             <div class="row">
-                <div class="col-md-3"><strong>Աշխատակից</strong></div>
-                <div class="col-md-3"><strong>Խանութ</strong></div>
-                <div class="col-md-2"><strong>From</strong></div>
-                <div class="col-md-2"><strong>To</strong></div>
+                <div class="col-sm-3"><strong>Աշխատակից</strong></div>
+                <div class="col-sm-3"><strong>Խանութ</strong></div>
+                <div class="col-sm-2"><strong>From</strong></div>
+                <div class="col-sm-2"><strong>To</strong></div>
             </div>
             <div class="row">
-                <div class="col-md-3">
+                <div class="col-sm-3">
                     <select id="user-select" name="user" class="form-control select2">
                         <option value=0></option>
                         {% for user in users %}
@@ -25,7 +25,7 @@
                         {% endfor %}
                     </select>
                 </div>
-                <div class="col-md-3">
+                <div class="col-sm-3">
                     <select id="company-select" name="company" class="form-control select2">
                         <option value=0></option>
                         {% for company in companies %}
@@ -33,13 +33,13 @@
                         {% endfor %}
                     </select>
                 </div>
-                <div class="col-md-2">
+                <div class="col-sm-2">
                     <input type="date" name="start_date" class="form-control" value="{{ start_date }}"/>
                 </div>
-                <div class="col-md-2">
+                <div class="col-sm-2">
                     <input type="date" name="end_date" class="form-control" value="{{ end_date }}"/>
                 </div>
-                <div class="col-md-2">
+                <div class="col-sm-2">
                     <input type="submit" class="btn btn-primary" value="Filter" />
                 </div>
             </div>
@@ -80,10 +80,10 @@
             </table>
 
             <div class="row">
-                <div class="col-md-11">
+                <div class="col-sm-11">
 
                 </div>
-                <div class="col-md-1">
+                <div class="col-sm-1">
                     <br />
                     <input type="submit" name="export_btn" class="btn btn-primary" value="Export"/>
                 </div>

@@ -9,12 +9,12 @@
     <div class="container content">
         <form method="POST" action="{{ path('list') }}">
             <div class="row">
-                <div class="col-md-3"><strong>Աշխատակից</strong></div>
-                <div class="col-md-3"><strong>From</strong></div>
-                <div class="col-md-3"><strong>To</strong></div>
+                <div class="col-sm-3"><strong>Աշխատակից</strong></div>
+                <div class="col-sm-3"><strong>From</strong></div>
+                <div class="col-sm-3"><strong>To</strong></div>
             </div>
             <div class="row">
-                <div class="col-md-3">
+                <div class="col-sm-3">
                     {% if is_granted('ROLE_ADMIN') %}
                         <select name="user" class="form-control select2">
                             <option></option>
@@ -26,13 +26,13 @@
                         <input class="form-control" value="{{ app.user }}" disabled/>
                     {% endif %}
                 </div>
-                <div class="col-md-3">
+                <div class="col-sm-3">
                     <input type="date" name="start_date" class="form-control" value="{{ start_date }}"/>
                 </div>
-                <div class="col-md-3">
+                <div class="col-sm-3">
                     <input type="date" name="end_date" class="form-control" value="{{ end_date }}"/>
                 </div>
-                <div class="col-md-3">
+                <div class="col-sm-3">
                     <input type="submit" class="btn btn-primary" value="Filter" />
                 </div>
             </div>
@@ -69,10 +69,11 @@
 
             </div>
             <div class="row">
-                <div class="col-md-11">
+            <div class="row">
+                <div class="col-sm-11">
                     {{ knp_pagination_render(priceLists) }}
                 </div>
-                <div class="col-md-1">
+                <div class="col-sm-1">
                     <br />
                     <input type="submit" class="btn btn-primary" value="Export"/>
                 </div>
