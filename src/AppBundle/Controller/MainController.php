@@ -15,6 +15,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use AppBundle\Form\PriceListType;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\Process\Process;
 
 class MainController extends Controller
 {
@@ -523,5 +524,35 @@ class MainController extends Controller
         return $this->redirectToRoute('single');
     }
 
+    /**
+     * This action use to upload data of cr data and po data from excel to project
+     *
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     * @Route("/export-database", name="export_database")
+     * @Security("has_role('ROLE_ADMIN')")
+     */
+    public function ExportDatabaseAction(Request $request)
+    {
+        $databaseName = $this->getParameter('database_name');
+        $databaseUser = $this->getParameter('database_user');
+        $databasePassword = $this->getParameter('database_password');
+        $filename = "../pl.sql";
 
+        $cmp = "mysqldump --user=$databaseUser  --host=localhost --password=$databasePassword $databaseName > $filename";
+
+        $process = new Process($cmp);
+        $process->run();
+
+        $response = new Response();
+
+        $response->headers->set('Cache-Control', 'private');
+        $response->headers->set('Content-type', mime_content_type($filename));
+        $response->headers->set('Content-Disposition', 'attachment; filename="' . basename($filename) . '";');
+        $response->headers->set('Content-length', filesize($filename));
+        $response->sendHeaders();
+        $response->setContent(file_get_contents($filename));
+
+        return $response;
+    }
 }
