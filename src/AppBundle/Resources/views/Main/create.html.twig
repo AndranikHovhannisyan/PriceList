@@ -3,11 +3,6 @@
 {% block stylesheets %}
     {{ parent() }}
     <link rel="stylesheet" type="text/css" href="{{ asset('/bundles/app/select2/css/select2.min.css') }}"/>
-    <style>
-        .select2 {
-            width: 100%
-        }
-    </style>
 {% endblock %}
 
 {% block body %}
@@ -91,7 +86,7 @@
 
             <strong>Զրոյական ապրանքներ</strong>
             {% for i in 0..2 %}
-                <div class="row">
+                <div class="row zero-products">
                     <div class="col-sm-5">
                         <select name="zero_products[{{ i }}]" class="form-control select2">
                             <option></option>

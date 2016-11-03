@@ -1,0 +1,13 @@
+.select2-selection {
+    min-height: 34px;
+    max-height: 34px;
+    overflow-y: auto;
+}
+
+.select2 {
+    width: 100%;
+}
+
+.zero-products {
+    margin-bottom: 5px;
+}
