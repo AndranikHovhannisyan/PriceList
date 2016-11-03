@@ -105,12 +105,12 @@
     <script>
         $('#user-select').on('change', function() {
             if(this.value){
-                $('#company-select').val(null);
+                $('#company-select').val(null).trigger("change");
             }
         });
         $('#company-select').on('change', function() {
             if(this.value){
-                $('#user-select').val(null);
+                $('#user-select').val(null).trigger("change");
             }
         });
     </script>
