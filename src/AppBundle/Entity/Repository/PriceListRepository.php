@@ -54,7 +54,7 @@ class PriceListRepository extends \Doctrine\ORM\EntityRepository
         }
 
         return $this->getEntityManager()
-            ->createQuery("SELECT pl.id, SUM(p.price * plp.quantity) as total
+            ->createQuery("SELECT pl.id, SUM(p.price * plp.quantity * (100 - COALESCE(plp.discount, 0)) / 100) as total
                            FROM AppBundle:PriceList pl
                            INDEX BY pl.id
                            JOIN pl.priceListProducts plp
@@ -93,9 +93,13 @@ class PriceListRepository extends \Doctrine\ORM\EntityRepository
                 $products[$data['id']] = $data;
                 $products[$data['id']]['quantity'] = $data['quantity'] . ($data['discount'] ? "(-{$data['discount']}%) " : ' ');
                 $products[$data['id']]['calculatedPrice'] = 0;
+                $products[$data['id']]['allQuantity'] = $data['quantity'];
+                $products[$data['id']]['count'] = 1;
             }
             else {
                 $products[$data['id']]['quantity'] .= '+ ' . $data['quantity'] . ($data['discount'] ? "(-{$data['discount']}%) " : ' ');
+                $products[$data['id']]['allQuantity'] += $data['quantity'];
+                $products[$data['id']]['count']++;
             }
 
             $products[$data['id']]['calculatedPrice'] += $data['price'] * $data['quantity'] * (100 - $data['discount']) / 100;

@@ -31,6 +31,12 @@ class Company
     protected $name;
 
     /**
+     * @ORM\ManyToOne(targetEntity="User")
+     * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
+     */
+    protected $user;
+
+    /**
      * @ORM\OneToMany(targetEntity="PriceList", mappedBy="company")
      */
     protected $priceList;
@@ -45,7 +51,7 @@ class Company
 
     public function __toString()
     {
-        return $this->name ? $this->name : '';
+        return $this->name ? $this->name . ($this->getUser() ? ' / ' . $this->getUser()->getUsername()  : '') : '';
     }
 
     /**
@@ -114,5 +120,29 @@ class Company
     public function getPriceList()
     {
         return $this->priceList;
+    }
+
+    /**
+     * Set user
+     *
+     * @param \AppBundle\Entity\User $user
+     *
+     * @return Company
+     */
+    public function setUser(\AppBundle\Entity\User $user = null)
+    {
+        $this->user = $user;
+
+        return $this;
+    }
+
+    /**
+     * Get user
+     *
+     * @return \AppBundle\Entity\User
+     */
+    public function getUser()
+    {
+        return $this->user;
     }
 }

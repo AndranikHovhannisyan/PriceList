@@ -31,20 +31,27 @@ class Company
     protected $name;
 
     /**
-     * @ORM\Column(name="address", type="string", length=200, nullable=false)
+     * @ORM\ManyToOne(targetEntity="User")
+     * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
      */
-    protected $address;
+    protected $user;
 
     /**
      * @ORM\OneToMany(targetEntity="PriceList", mappedBy="company")
      */
     protected $priceList;
+
     /**
      * Constructor
      */
     public function __construct()
     {
         $this->priceList = new \Doctrine\Common\Collections\ArrayCollection();
+    }
+
+    public function __toString()
+    {
+        return $this->name ? $this->name : '';
     }
 
     /**
@@ -79,30 +86,6 @@ class Company
     public function getName()
     {
         return $this->name;
-    }
-
-    /**
-     * Set address
-     *
-     * @param string $address
-     *
-     * @return Company
-     */
-    public function setAddress($address)
-    {
-        $this->address = $address;
-
-        return $this;
-    }
-
-    /**
-     * Get address
-     *
-     * @return string
-     */
-    public function getAddress()
-    {
-        return $this->address;
     }
 
     /**

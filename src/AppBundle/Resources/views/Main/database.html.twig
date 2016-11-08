@@ -1,0 +1,16 @@
+{% extends '::base.html.twig' %}
+
+{% block body %}
+    {{ parent() }}
+
+    <div class="container content well">
+        <div class="row">
+            <div class="col-sm-10">
+                Ներբեռնվող ֆայլը կպարունակի Ձեր ամբեղջ ինֆորմացիան .sql ֆորմատով։
+            </div>
+            <div class="col-sm-2">
+                <a href="{{ path('export_database') }}" class="btn btn-primary" >Բեռնել</a>
+            </div>
+        </div>
+    </div>
+{% endblock %}

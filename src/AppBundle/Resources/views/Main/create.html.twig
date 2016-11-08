@@ -10,18 +10,20 @@
 
     <div class="container content">
         <br />
-        <form method="POST" action="{{ path('add_company') }}">
-            <div class="row">
-                <div class="col-sm-3">
-                    <input class="form-control" type="text" name="company_name" class="form-control" placeholder="Ավելացնել խանութ"/>
+        {% if not is_granted('ROLE_ADMIN') %}
+            <form method="POST" action="{{ path('add_company') }}">
+                <div class="row">
+                    <div class="col-sm-3">
+                        <input class="form-control" type="text" name="company_name" class="form-control" placeholder="Ավելացնել խանութ"/>
+                    </div>
+                    <div class="col-sm-2">
+                        <input type="submit" class="btn btn-primary" />
+                    </div>
                 </div>
-                <div class="col-sm-2">
-                    <input type="submit" class="btn btn-primary" />
-                </div>
-            </div>
-        </form>
+            </form>
+        {% endif %}
 
-        <p class="text-right">{{ form.vars.value.performDate|date('Y-m-d H:i:s') }}</p>
+        <p class="text-right">{{ form.vars.value.performDate|date('m-d-Y H:i:s') }}</p>
         <form method="POST" action="#">
 
             <div class="row">

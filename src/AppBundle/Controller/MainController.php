@@ -26,8 +26,9 @@ class MainController extends Controller
      */
     public function createAction(Request $request, $id = null)
     {
+        $user = $this->isGranted('ROLE_ADMIN') ? null : $this->getUser();
         $em = $this->getDoctrine()->getManager();
-        $companies = $em->getRepository('AppBundle:Company')->findAllIndexedById();
+        $companies = $em->getRepository('AppBundle:Company')->findAllIndexedById($user);
         $products = $em->getRepository('AppBundle:Product')->findAllIndexedById();
 
         if (is_null($id)){
@@ -363,7 +364,15 @@ class MainController extends Controller
 
         if ($request->getMethod() == "POST"){
             if (is_null($companyId) && is_null($userId)){
-                throw new HttpException(Response::HTTP_BAD_REQUEST);
+                return [
+                    'companyId'  => null,
+                    'userId'     => null,
+                    'start_date' => $startDate,
+                    'end_date'   => $endDate,
+                    'companies'  => $companies,
+                    'users'      => $users,
+                    'result'     => []
+                ];
             }
 
             if (!is_null($companyId) && !is_null($userId)){
@@ -458,7 +467,7 @@ class MainController extends Controller
             $sheet
                 ->setCellValue('A' . $i, $data['name'])
                 ->setCellValue('B' . $i, $data['price'])
-                ->setCellValue('C' . $i, $data['quantity'])
+                ->setCellValue('C' . $i, $data['quantity'] . ($data['count'] > 1 ? ' = ' . $data['allQuantity'] : ''))
                 ->setCellValue('D' . $i, $data['calculatedPrice']);
 
             for ($j = 65; $j <= 68; $j++) {
@@ -510,12 +519,13 @@ class MainController extends Controller
      */
     public function createCompanyAction(Request $request)
     {
-        if (!($name = $request->get('company_name', null))){
+        if ($this->isGranted('ROLE_ADMIN') || !($name = $request->get('company_name', null))){
             throw new HttpException(Response::HTTP_BAD_REQUEST);
         }
 
         $em = $this->getDoctrine()->getManager();
         $company = new Company();
+        $company->setUser($this->getUser());
         $company->setName($name);
 
         $em->persist($company);
@@ -529,10 +539,25 @@ class MainController extends Controller
      *
      * @param Request $request
      * @return \Symfony\Component\HttpFoundation\Response
+     * @Route("/database", name="database")
+     * @Security("has_role('ROLE_ADMIN')")
+     * @Template()
+     */
+    public function databaseAction(Request $request)
+    {
+        return [];
+    }
+
+
+    /**
+     * This action use to upload data of cr data and po data from excel to project
+     *
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
      * @Route("/export-database", name="export_database")
      * @Security("has_role('ROLE_ADMIN')")
      */
-    public function ExportDatabaseAction(Request $request)
+    public function exportDatabaseAction(Request $request)
     {
         $databaseName = $this->getParameter('database_name');
         $databaseUser = $this->getParameter('database_user');

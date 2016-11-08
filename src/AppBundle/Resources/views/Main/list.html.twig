@@ -52,7 +52,7 @@
                         <tr>
                             <td>{{ priceList.id }}</td>
                             <td>{{ priceList.company }}</td>
-                            <td>{{ priceList.performDate|date('Y-m-d H:i:s') }}</td>
+                            <td>{{ priceList.performDate|date('m-d-Y H:i:s') }}</td>
                             <td>{{ priceList.total }}</td>
                             {% if is_granted('ROLE_ADMIN') %}<th>{{ priceList.user.username }}</th>{% endif %}
                             <td>

@@ -10,13 +10,15 @@ namespace AppBundle\Entity\Repository;
  */
 class CompanyRepository extends \Doctrine\ORM\EntityRepository
 {
-    public function findAllIndexedById()
+    public function findAllIndexedById($user = null)
     {
         return $this->getEntityManager()
             ->createQuery("SELECT c
                            FROM AppBundle:Company c
                            INDEX BY c.id
+                           WHERE :user IS NULL OR c.user = :user 
                            ORDER BY c.name")
+            ->setParameter('user', $user)
             ->getResult();
     }
 }
