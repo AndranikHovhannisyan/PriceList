@@ -46,7 +46,7 @@
                         <th>Գումարը</th>
                         {% if is_granted('ROLE_ADMIN') %}<th>Աշխատակից</th>{% endif %}
                         <th>Actions</th>
-                        <th></th>
+                        <th><input type="checkbox" id="ids_check_all"/> </th>
                     </tr>
                     {% for priceList in priceLists %}
                         <tr>
@@ -59,13 +59,12 @@
                                 <a href="{{ path('view', {'id': priceList.id}) }}">View</a>
                                 {#<a href="{{ path('single', {'id': priceList.id}) }}">Edit</a>#}
                             </td>
-                            <td><input type="checkbox" name="ids[{{ priceList.id }}]"/>&nbsp;</td>
+                            <td><input type="checkbox" class="ids" name="ids[{{ priceList.id }}]"/>&nbsp;</td>
                         </tr>
                     {% endfor %}
                 </table>
 
             </div>
-            <div class="row">
             <div class="row">
                 <div class="col-sm-11">
                     {{ knp_pagination_render(priceLists) }}
@@ -77,10 +76,19 @@
             </div>
 
         </form>
-
-
-
-
     </div>
 
 {% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+
+        $('#ids_check_all').on('ifChanged change', function () {
+            var checkboxes = $(".ids");
+            checkboxes.prop('checked', this.checked);
+        });
+
+    </script>
+{% endblock %}
+
