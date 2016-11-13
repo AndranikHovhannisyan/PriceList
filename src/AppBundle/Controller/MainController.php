@@ -11,6 +11,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use AppBundle\Form\PriceListType;
@@ -306,19 +307,23 @@ class MainController extends Controller
      */
     public function listAction(Request $request)
     {
-        $em = $this->getDoctrine()->getManager();
-        $users = $em->getRepository('AppBundle:User')->findAll();
+        $em        = $this->getDoctrine()->getManager();
+        $user      = $this->isGranted('ROLE_ADMIN') ? null : $this->getUser();
+        $users     = $em->getRepository('AppBundle:User')->findAll();
+        $companies = $em->getRepository('AppBundle:Company')->findAllIndexedById($user);
 
         $userId    = $request->get('user', null);
+        $companyId = $request->get('company', null);
         $startDate = $request->get('start_date');
         $endDate   = $request->get('end_date');
 
         $userId    = $userId    ? $userId    : null;
+        $companyId = $companyId ? $companyId : null;
         $startDate = $startDate ? $startDate : null;
         $endDate   = $endDate   ? $endDate   : null;
 
         $user = $this->isGranted('ROLE_ADMIN') ? $userId : $this->getUser();
-        $priceListsQuery = $em->getRepository('AppBundle:PriceList')->findQueryByUser($user, $startDate, $endDate);
+        $priceListsQuery = $em->getRepository('AppBundle:PriceList')->findQueryByUser($user, $companyId, $startDate, $endDate);
 
         $paginator  = $this->get('knp_paginator');
         $pagination = $paginator->paginate($priceListsQuery, $request->query->getInt('page', 1), 15);
@@ -334,6 +339,8 @@ class MainController extends Controller
         return [
             'priceLists'  => $pagination,
             'users'       => $users,
+            'companies'   => $companies,
+            'companyId'   => $companyId,
             'user_id'     => $userId,
             'start_date'  => $startDate,
             'end_date'    => $endDate
@@ -342,6 +349,7 @@ class MainController extends Controller
 
     /**
      * @Route("/statistic", name="statistic")
+     * @Route("/sale-details", name="sale_details")
      * @Security("has_role('ROLE_USER')")
      * @Template()
      */
@@ -354,15 +362,17 @@ class MainController extends Controller
 
         $userId    = $request->get('user', null);
         $companyId = $request->get('company', null);
+        $productId = $request->get('product', null);
         $startDate = $request->get('start_date', null);
         $endDate   = $request->get('end_date', null);
 
         $userId    = $userId    ? $userId    : null;
         $companyId = $companyId ? $companyId : null;
+        $productId = $productId ? $productId : null;
         $startDate = $startDate ? $startDate : null;
         $endDate   = $endDate   ? $endDate   : null;
 
-        if ($request->getMethod() == "POST"){
+        if (true || $request->getMethod() == "POST"){
             if (is_null($companyId) && is_null($userId)){
                 return [
                     'companyId'  => null,
@@ -385,6 +395,12 @@ class MainController extends Controller
 
             if(!is_null($userId) && !isset($users[$userId])){
                 throw new HttpException(Response::HTTP_BAD_REQUEST);
+            }
+
+            if ($request->get('_route') == "sale_details"){
+                $result = $em->getRepository('AppBundle:PriceList')->findSaleDetails($userId, $companyId, $productId, $startDate, $endDate);
+
+                return new JsonResponse($result);
             }
 
             $result = $em->getRepository('AppBundle:PriceList')->findStatistic($userId, $companyId, $startDate, $endDate);

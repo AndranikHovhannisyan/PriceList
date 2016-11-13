@@ -29,7 +29,7 @@ class PriceListRepository extends \Doctrine\ORM\EntityRepository
     }
 
 
-    public function findQueryByUser($user, $startDate, $endDate)
+    public function findQueryByUser($user, $companyId, $startDate, $endDate)
     {
         return $this->getEntityManager()
             ->createQuery("SELECT pl, plp, p, c
@@ -39,10 +39,12 @@ class PriceListRepository extends \Doctrine\ORM\EntityRepository
                            JOIN plp.product p
                            LEFT JOIN pl.company c
                            WHERE (pl.user = :user OR :user IS NULL)
+                               AND (pl.company = :company OR :company IS NULL)
                                AND (pl.performDate >= :startDate OR :startDate IS NULL)
                                AND (pl.performDate <= :endDate OR :endDate IS NULL)
                            ORDER BY pl.id DESC")
             ->setParameter('user', $user)
+            ->setParameter('company', $companyId)
             ->setParameter('startDate', $startDate)
             ->setParameter('endDate', $endDate);
     }
@@ -64,6 +66,31 @@ class PriceListRepository extends \Doctrine\ORM\EntityRepository
             ->setParameter('ids', $priceListIds)
             ->getResult();
     }
+
+
+    public function findSaleDetails($userId, $companyId, $productId, $startDate, $endDate)
+    {
+        $startDate = $startDate ? $startDate . ' 00:00:00' : null;
+        $endDate = $endDate ? $endDate . ' 23:59:59' : null;
+
+        return $this->getEntityManager()
+            ->createQuery("SELECT  p.name, pl.performDate, plp.discount, plp.quantity, p.price * plp.quantity * (100 - COALESCE(plp.discount, 0)) / 100 as total
+                           FROM AppBundle:priceList pl
+                           JOIN pl.priceListProducts plp
+                           JOIN plp.product p
+                           WHERE ((:company IS NOT NULL AND pl.company = :company) OR (:user IS NOT NULL AND pl.user = :user))
+                           AND plp.quantity != 0 AND p.id = :product
+                           AND (pl.performDate >= :startDate OR :startDate IS NULL)
+                           AND (pl.performDate <= :endDate OR :endDate IS NULL)
+                           ORDER BY pl.performDate DESC")
+            ->setParameter('user', $userId)
+            ->setParameter('company', $companyId)
+            ->setParameter('product', $productId)
+            ->setParameter('startDate', $startDate)
+            ->setParameter('endDate', $endDate)
+            ->getResult();
+    }
+
 
     public function findStatistic($userId, $companyId, $startDate, $endDate)
     {

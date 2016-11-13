@@ -1,5 +1,10 @@
 {% extends '::base.html.twig' %}
 
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" type="text/css" href="{{ asset('/bundles/app/select2/css/select2.min.css') }}"/>
+{% endblock %}
+
 {% block body %}
     {{ parent() }}
 
@@ -7,13 +12,14 @@
         <form method="POST" action="{{ path('list') }}">
             <div class="row">
                 <div class="col-sm-3"><strong>Աշխատակից</strong></div>
-                <div class="col-sm-3"><strong>From</strong></div>
-                <div class="col-sm-3"><strong>To</strong></div>
+                <div class="col-sm-3"><strong>Խանութ</strong></div>
+                <div class="col-sm-2"><strong>Սկսած</strong></div>
+                <div class="col-sm-2"><strong>Մինչև</strong></div>
             </div>
             <div class="row">
                 <div class="col-sm-3">
                     {% if is_granted('ROLE_ADMIN') %}
-                        <select name="user" class="form-control select2">
+                        <select id="user-select" name="user" class="form-control select2">
                             <option></option>
                             {% for user in users %}
                                 <option value="{{ user.id }}" {% if user_id is not null and user.id == user_id %}selected="selected"{% endif %}>{{ user.username }}</option>
@@ -22,15 +28,24 @@
                     {% else %}
                         <input class="form-control" value="{{ app.user }}" disabled/>
                     {% endif %}
+
                 </div>
                 <div class="col-sm-3">
+                    <select id="company-select" name="company" class="form-control select2">
+                        <option value=0></option>
+                        {% for company in companies %}
+                            <option value="{{ company.id }}" {% if companyId is not null and company.id == companyId %}selected="selected"{% endif %}>{{ company }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-sm-2">
                     <input type="date" name="start_date" class="form-control" value="{{ start_date }}"/>
                 </div>
-                <div class="col-sm-3">
+                <div class="col-sm-2">
                     <input type="date" name="end_date" class="form-control" value="{{ end_date }}"/>
                 </div>
-                <div class="col-sm-3">
-                    <input type="submit" class="btn btn-primary" value="Filter" />
+                <div class="col-sm-2">
+                    <input type="submit" class="btn btn-primary" value="Ֆիլտրել" />
                 </div>
             </div>
         </form>
@@ -56,7 +71,7 @@
                             <td>{{ priceList.total }}</td>
                             {% if is_granted('ROLE_ADMIN') %}<th>{{ priceList.user.username }}</th>{% endif %}
                             <td>
-                                <a href="{{ path('view', {'id': priceList.id}) }}">View</a>
+                                <a href="{{ path('view', {'id': priceList.id}) }}">Դիտել</a>
                                 {#<a href="{{ path('single', {'id': priceList.id}) }}">Edit</a>#}
                             </td>
                             <td><input type="checkbox" class="ids" name="ids[{{ priceList.id }}]"/>&nbsp;</td>
@@ -66,12 +81,12 @@
 
             </div>
             <div class="row">
-                <div class="col-sm-11">
+                <div class="col-sm-10">
                     {{ knp_pagination_render(priceLists) }}
                 </div>
-                <div class="col-sm-1">
+                <div class="col-sm-2">
                     <br />
-                    <input type="submit" class="btn btn-primary" value="Export"/>
+                    <input type="submit" class="btn btn-primary" value="Excel Էքսպորտ"/>
                 </div>
             </div>
 
@@ -82,6 +97,22 @@
 
 {% block javascripts %}
     {{ parent() }}
+    <script src="{{ asset('/bundles/app/select2/js/select2.min.js') }}"></script>
+    <script type="text/javascript">
+        $('.select2').select2();
+    </script>
+    <script>
+        $('#user-select').on('change', function() {
+            if(this.value){
+                $('#company-select').val(null).trigger("change");
+            }
+        });
+        $('#company-select').on('change', function() {
+            if(this.value){
+                $('#user-select').val(null).trigger("change");
+            }
+        });
+    </script>
     <script>
 
         $('#ids_check_all').on('ifChanged change', function () {
@@ -91,4 +122,5 @@
 
     </script>
 {% endblock %}
+
 

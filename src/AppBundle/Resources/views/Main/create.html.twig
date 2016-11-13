@@ -17,7 +17,7 @@
                         <input class="form-control" type="text" name="company_name" class="form-control" placeholder="Ավելացնել խանութ"/>
                     </div>
                     <div class="col-sm-2">
-                        <input type="submit" class="btn btn-primary" />
+                        <input type="submit" class="btn btn-primary" value="Ավելացնել" />
                     </div>
                 </div>
             </form>
@@ -106,12 +106,18 @@
 
             <br/>
 
-            {{ form_widget(form.comment, {'attr': {'class': 'form-control'} }) }}
-
+            <div class="row">
+                <div class="col-sm-11">
+                    {{ form_widget(form.comment, {'attr': {'class': 'form-control'} }) }}
+                </div>
+                <div class="col-sm-1">
+                    <input type="submit" class="btn btn-primary" value="Ուղարկել"/>
+                </div>
+            </div>
             <br />
 
             {{ form_widget(form._token) }}
-            <input type="submit" class="btn btn-primary" />
+
         </form>
     </div>
 {% endblock %}

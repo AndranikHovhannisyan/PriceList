@@ -13,8 +13,8 @@
             <div class="row">
                 <div class="col-sm-3"><strong>Աշխատակից</strong></div>
                 <div class="col-sm-3"><strong>Խանութ</strong></div>
-                <div class="col-sm-2"><strong>From</strong></div>
-                <div class="col-sm-2"><strong>To</strong></div>
+                <div class="col-sm-2"><strong>Սկսած</strong></div>
+                <div class="col-sm-2"><strong>Մինչև</strong></div>
             </div>
             <div class="row">
                 <div class="col-sm-3">
@@ -40,7 +40,7 @@
                     <input type="date" name="end_date" class="form-control" value="{{ end_date }}"/>
                 </div>
                 <div class="col-sm-2">
-                    <input type="submit" class="btn btn-primary" value="Filter" />
+                    <input type="submit" class="btn btn-primary" value="Ֆիլտրել" />
                 </div>
             </div>
 
@@ -51,6 +51,7 @@
                     <th>Միավորի գին</th>
                     <th>Քանակը</th>
                     <th>Գումարը</th>
+                    <th></th>
                 </tr>
 
                 {% set i = 1 %}
@@ -63,6 +64,13 @@
 
                         {% set totalPrice = totalPrice + data['calculatedPrice'] %}
                         <td>{{ data['calculatedPrice'] }}</td>
+                        <td>
+                            {% if data['count'] > 1 %}
+                                <a href="#" onClick="showSaleDetails({{ data['id'] }})">
+                                    ...
+                                </a>
+                            {% endif %}
+                        </td>
                     </tr>
 
                     {% set i = i + 1 %}
@@ -80,12 +88,12 @@
             </table>
 
             <div class="row">
-                <div class="col-sm-11">
+                <div class="col-sm-10">
 
                 </div>
-                <div class="col-sm-1">
+                <div class="col-sm-2">
                     <br />
-                    <input type="submit" name="export_btn" class="btn btn-primary" value="Export"/>
+                    <input type="submit" name="export_btn" class="btn btn-primary" value="Excel Էքսպորտ"/>
                 </div>
             </div>
 
@@ -93,12 +101,34 @@
 
         <br />
     </div>
+
+    <div class="modal fade" id="productsModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span>&times;</span>
+                    </button>
+                    <h4 class="modal-title" id="myModalLabel">Sale detail list</h4>
+                </div>
+                <div class="modal-body">
+                    ...
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 {% endblock %}
 
 
 {% block javascripts %}
     {{ parent() }}
     <script src="{{ asset('/bundles/app/select2/js/select2.min.js') }}"></script>
+    <script src="{{ asset('/bower_components/bootstrap/dist/js/bootstrap.min.js') }}"></script>
+
     <script type="text/javascript">
         $('.select2').select2();
     </script>
@@ -114,4 +144,56 @@
             }
         });
     </script>
+
+    <script type="text/javascript">
+        function showSaleDetails(product) {
+            var url = '{{ path('sale_details') }}';
+            var params = {};
+            {% if userId is not null %}
+                params.user = {{ userId }};
+            {% endif %}
+            {% if companyId is not null %}
+                params.company = {{ companyId }};
+            {% endif %}
+            {% if start_date is not null %}
+                params.start_date = '{{ start_date }}';
+            {% endif %}
+            {% if end_date is not null %}
+                params.end_date = '{{ end_date }}';
+            {% endif %}
+
+            params.product = product;
+
+            $.post(url, params, function(data, status){
+                if (data.length == 0){
+                    return;
+                }
+
+                $('.modal-title').html(data[0].name);
+
+                var body = "<table class='table table-striped table-bordered'><tr>" +
+                        "<td>Ամսաթիվը</td>" +
+                        "<td>Զեղչ</td>" +
+                        "<td>Քանակը</td>" +
+                        "<td>Գումարը</td>" +
+                "</tr>";
+                for(k in data){
+
+                    body += "<tr>" +
+                                "<td>" + data[k].performDate.date + "</td>" +
+                                "<td>" + (data[k].discount ? data[k].discount + '%' : '')  + "</td>" +
+                                "<td>" + data[k].quantity    + "</td>" +
+                                "<td>" + data[k].total       + "</td>" +
+                            "</tr>";
+                }
+
+                body += "</table>";
+
+
+                $('.modal-body').html(body);
+                $('#productsModal').modal('show');
+            });
+        }
+</script>
+
 {% endblock %}
