@@ -62,10 +62,10 @@
 
                         <td class="single_price_{{ i }}">{{ priceListProduct.vars.value.product.price }}</td>
                         <td>
-                            <input onkeyup="calculatePrice({{ i }})" type="number" id="{{ priceListProduct.vars.id }}_discount" name="{{ priceListProduct.vars.full_name }}[discount]" min="0" value="{{ priceListProduct.vars.value.discount }}" class="form-control discount_{{ i }}"/>
+                            <input onchange="calculatePrice({{ i }})" type="number" id="{{ priceListProduct.vars.id }}_discount" name="{{ priceListProduct.vars.full_name }}[discount]" min="0" value="{{ priceListProduct.vars.value.discount }}" class="form-control discount_{{ i }}"/>
                         </td>
                         <td>
-                            <input onkeyup="calculatePrice({{ i }})" type="number" id="{{ priceListProduct.vars.id }}_quantity" name="{{ priceListProduct.vars.full_name }}[quantity]" min="0" value="{{ priceListProduct.vars.value.quantity }}" class="form-control quantity_{{ i }}"/>
+                            <input onchange="calculatePrice({{ i }})" type="number" id="{{ priceListProduct.vars.id }}_quantity" name="{{ priceListProduct.vars.full_name }}[quantity]" min="0" value="{{ priceListProduct.vars.value.quantity }}" class="form-control quantity_{{ i }}"/>
                         </td>
 
                         {% set price = priceListProduct.vars.value.quantity * priceListProduct.vars.value.product.price %}
