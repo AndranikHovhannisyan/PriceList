@@ -31,6 +31,11 @@ class Product
     protected $name;
 
     /**
+     * @ORM\Column(name="enabled", type="boolean", nullable=true)
+     */
+    protected $enabled;
+
+    /**
      * @ORM\Column(name="code", type="string", length=20, nullable=true)
      */
     protected $code;
@@ -125,5 +130,21 @@ class Product
     public function getPrice()
     {
         return $this->price;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getEnabled()
+    {
+        return $this->enabled;
+    }
+
+    /**
+     * @param mixed $enabled
+     */
+    public function setEnabled($enabled)
+    {
+        $this->enabled = $enabled;
     }
 }

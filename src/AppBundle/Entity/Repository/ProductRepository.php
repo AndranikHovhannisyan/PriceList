@@ -16,6 +16,7 @@ class ProductRepository extends \Doctrine\ORM\EntityRepository
             ->createQuery("SELECT p
                            FROM AppBundle:Product p
                            INDEX BY p.id
+                           WHERE p.enabled = true
                            ORDER BY p.name")
             ->getResult();
     }

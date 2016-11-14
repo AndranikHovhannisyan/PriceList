@@ -20,6 +20,7 @@ class ProductAdmin extends AbstractAdmin
             ->add('name')
             ->add('code')
             ->add('price')
+            ->add('enabled')
         ;
     }
 
@@ -30,6 +31,7 @@ class ProductAdmin extends AbstractAdmin
     {
         $listMapper
             ->add('id')
+            ->add('enabled', null, ['editable' => true])
             ->add('name')
             ->add('code')
             ->add('price')
@@ -52,6 +54,7 @@ class ProductAdmin extends AbstractAdmin
             ->add('name')
             ->add('code')
             ->add('price')
+            ->add('enabled')
         ;
     }
 
@@ -65,6 +68,7 @@ class ProductAdmin extends AbstractAdmin
             ->add('name')
             ->add('code')
             ->add('price')
+            ->add('enabled')
         ;
     }
 }

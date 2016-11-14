@@ -3,6 +3,7 @@
 {% block stylesheets %}
     {{ parent() }}
     <link rel="stylesheet" type="text/css" href="{{ asset('/bundles/app/select2/css/select2.min.css') }}"/>
+    <link rel="stylesheet" type="text/css" href="{{ asset('/bower_components/font-awesome/css/font-awesome.min.css') }}"/>
 {% endblock %}
 
 {% block body %}
@@ -67,7 +68,7 @@
                         <td>
                             {% if data['count'] > 1 %}
                                 <a href="#" onClick="showSaleDetails({{ data['id'] }})">
-                                    ...
+                                    <i class="fa fa-list" aria-hidden="true"></i>
                                 </a>
                             {% endif %}
                         </td>
@@ -116,7 +117,7 @@
                     ...
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Փակել</button>
                 </div>
             </div>
         </div>
