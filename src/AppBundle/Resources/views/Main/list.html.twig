@@ -40,10 +40,10 @@
                     </select>
                 </div>
                 <div class="col-sm-2">
-                    <input type="text" name="start_date" class="form-control datepicker" value="{{ start_date }}"/>
+                    <input type="text" name="start_date" class="form-control datepicker" value="{{ start_date ? start_date|date('d-m-Y') : '' }}"/>
                 </div>
                 <div class="col-sm-2">
-                    <input type="text" name="end_date" class="form-control datepicker" value="{{ end_date }}"/>
+                    <input type="text" name="end_date" class="form-control datepicker" value="{{ end_date ? end_date|date('d-m-Y') : '' }}"/>
                 </div>
                 <div class="col-sm-2">
                     <input type="submit" class="btn btn-primary" value="Ֆիլտրել" />
@@ -68,7 +68,7 @@
                         <tr>
                             <td>{{ priceList.id }}</td>
                             <td>{{ priceList.company }}</td>
-                            <td>{{ priceList.performDate|date('m-d-Y H:i:s') }}</td>
+                            <td>{{ priceList.performDate|date('d-m-Y H:i:s') }}</td>
                             <td>{{ priceList.total }}</td>
                             {% if is_granted('ROLE_ADMIN') %}<th>{{ priceList.user.username }}</th>{% endif %}
                             <td>

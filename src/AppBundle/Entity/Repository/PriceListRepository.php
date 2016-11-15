@@ -31,6 +31,9 @@ class PriceListRepository extends \Doctrine\ORM\EntityRepository
 
     public function findQueryByUser($user, $companyId, $startDate, $endDate)
     {
+        $startDate = $startDate ? $startDate->format('Y-m-d') : null;
+        $endDate   = $endDate   ? $endDate->format('Y-m-d')   : null;
+
         return $this->getEntityManager()
             ->createQuery("SELECT pl, plp, p, c
                            FROM AppBundle:PriceList pl
@@ -70,8 +73,8 @@ class PriceListRepository extends \Doctrine\ORM\EntityRepository
 
     public function findSaleDetails($userId, $companyId, $productId, $startDate, $endDate)
     {
-        $startDate = $startDate ? $startDate . ' 00:00:00' : null;
-        $endDate = $endDate ? $endDate . ' 23:59:59' : null;
+        $startDate = $startDate ? $startDate->format('Y-m-d') . ' 00:00:00' : null;
+        $endDate = $endDate ? $endDate->format('Y-m-d') . ' 23:59:59' : null;
 
         return $this->getEntityManager()
             ->createQuery("SELECT  p.name, pl.performDate, plp.discount, plp.quantity, p.price * plp.quantity * (100 - COALESCE(plp.discount, 0)) / 100 as total
@@ -94,8 +97,8 @@ class PriceListRepository extends \Doctrine\ORM\EntityRepository
 
     public function findStatistic($userId, $companyId, $startDate, $endDate)
     {
-        $startDate = $startDate ? $startDate . ' 00:00:00' : null;
-        $endDate = $endDate ? $endDate . ' 23:59:59' : null;
+        $startDate = $startDate ? $startDate->format('Y-m-d') . ' 00:00:00' : null;
+        $endDate = $endDate ? $endDate->format('Y-m-d') . ' 23:59:59' : null;
 
         $result = $this->getEntityManager()
             ->createQuery("SELECT  p.id, p.name, p.price, plp.discount, SUM(plp.quantity) as quantity

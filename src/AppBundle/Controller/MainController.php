@@ -132,7 +132,7 @@ class MainController extends Controller
 
             $response = $this->get('phpexcel')->createStreamedResponse($writer);
             $response->headers->set('Content-Type', 'text/vnd.ms-excel; charset=utf-8');
-            $response->headers->set('Content-Disposition', 'attachment; filename="'. $priceList->getCompany() . '_' . $priceList->getPerformDate()->format('Y:m:d') . '.xls"');
+            $response->headers->set('Content-Disposition', 'attachment; filename="'. $priceList->getCompany() . '_' . $priceList->getPerformDate()->format('d-m-Y') . '.xls"');
             $response->headers->set('Pragma', 'public');
             $response->headers->set('Cache-Control', 'maxage=1');
 
@@ -209,7 +209,7 @@ class MainController extends Controller
     {
         $sheet->mergeCells("A$startRow:D$startRow")
             ->setCellValue("A$startRow", $priceList->getCompany() . ' '
-                . $priceList->getPerformDate()->format('Y-m-d') . '    N:' . $priceList->getId());
+                . $priceList->getPerformDate()->format('d-m-Y') . '    N:' . $priceList->getId());
 
         $sheet->getStyle("A$startRow")->getFont()->setBold(true);
 
@@ -319,8 +319,8 @@ class MainController extends Controller
 
         $userId    = $userId    ? $userId    : null;
         $companyId = $companyId ? $companyId : null;
-        $startDate = $startDate ? $startDate : null;
-        $endDate   = $endDate   ? $endDate   : null;
+        $startDate = $startDate ? new \DateTime($startDate) : null;
+        $endDate   = $endDate   ? new \DateTime($endDate)   : null;
 
         $user = $this->isGranted('ROLE_ADMIN') ? $userId : $this->getUser();
         $priceListsQuery = $em->getRepository('AppBundle:PriceList')->findQueryByUser($user, $companyId, $startDate, $endDate);
@@ -369,8 +369,8 @@ class MainController extends Controller
         $userId    = $userId    ? $userId    : null;
         $companyId = $companyId ? $companyId : null;
         $productId = $productId ? $productId : null;
-        $startDate = $startDate ? $startDate : null;
-        $endDate   = $endDate   ? $endDate   : null;
+        $startDate = $startDate ? new \DateTime($startDate) : null;
+        $endDate   = $endDate   ? new \DateTime($endDate)   : null;
 
         if (true || $request->getMethod() == "POST"){
             if (is_null($companyId) && is_null($userId)){
@@ -407,7 +407,8 @@ class MainController extends Controller
 
             if ($request->get('export_btn')){
                 return $this->exportStatistic($result, isset($companies[$companyId]) ? $companies[$companyId] : null,
-                                              isset($users[$userId]) ? $users[$userId] : null, $startDate, $endDate);
+                                      isset($users[$userId]) ? $users[$userId] : null,
+                                      $startDate ? $startDate->format('d-m-Y') : null, $endDate ? $endDate->format('d-m-Y') : null);
             }
         }
 
