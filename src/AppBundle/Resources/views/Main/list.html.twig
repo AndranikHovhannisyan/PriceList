@@ -3,6 +3,7 @@
 {% block stylesheets %}
     {{ parent() }}
     <link rel="stylesheet" type="text/css" href="{{ asset('/bundles/app/select2/css/select2.min.css') }}"/>
+    <link rel="stylesheet" type="text/css" href="{{ asset('/bower_components/jquery-ui/themes/base/jquery-ui.min.css') }}"/>
 {% endblock %}
 
 {% block body %}
@@ -39,10 +40,10 @@
                     </select>
                 </div>
                 <div class="col-sm-2">
-                    <input type="date" name="start_date" class="form-control" value="{{ start_date }}"/>
+                    <input type="text" name="start_date" class="form-control datepicker" value="{{ start_date }}"/>
                 </div>
                 <div class="col-sm-2">
-                    <input type="date" name="end_date" class="form-control" value="{{ end_date }}"/>
+                    <input type="text" name="end_date" class="form-control datepicker" value="{{ end_date }}"/>
                 </div>
                 <div class="col-sm-2">
                     <input type="submit" class="btn btn-primary" value="Ֆիլտրել" />
@@ -98,8 +99,14 @@
 {% block javascripts %}
     {{ parent() }}
     <script src="{{ asset('/bundles/app/select2/js/select2.min.js') }}"></script>
+    <script src="{{ asset('/bower_components/jquery-ui/jquery-ui.min.js') }}"></script>
+
     <script type="text/javascript">
         $('.select2').select2();
+
+        $( ".datepicker" ).datepicker({
+            dateFormat: "dd-mm-yy"
+        });
     </script>
     <script>
         $('#user-select').on('change', function() {
