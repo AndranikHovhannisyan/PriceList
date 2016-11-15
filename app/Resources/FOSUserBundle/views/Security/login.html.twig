@@ -1,6 +1,6 @@
-{% extends "FOSUserBundle::layout.html.twig" %}
-
-{% block fos_user_content %}
+<!DOCTYPE html>
+<html>
+<head>
     <style>
         @import url(https://fonts.googleapis.com/css?family=Roboto:300);
 
@@ -30,68 +30,13 @@
             box-sizing: border-box;
             font-size: 14px;
         }
-        .form button {
-            font-family: "Roboto", sans-serif;
-            text-transform: uppercase;
-            outline: 0;
-            background: #4CAF50;
-            width: 100%;
-            border: 0;
-            padding: 15px;
-            color: #FFFFFF;
-            font-size: 14px;
-            -webkit-transition: all 0.3 ease;
-            transition: all 0.3 ease;
-            cursor: pointer;
+
+        .logo {
+            font-style: italic;
+            font-size: 30px;
+            color: red;
         }
-        .form button:hover,.form button:active,.form button:focus {
-            background: #43A047;
-        }
-        .form .message {
-            margin: 15px 0 0;
-            color: #b3b3b3;
-            font-size: 12px;
-        }
-        .form .message a {
-            color: #4CAF50;
-            text-decoration: none;
-        }
-        .form .register-form {
-            display: none;
-        }
-        .container {
-            position: relative;
-            z-index: 1;
-            max-width: 300px;
-            margin: 0 auto;
-        }
-        .container:before, .container:after {
-            content: "";
-            display: block;
-            clear: both;
-        }
-        .container .info {
-            margin: 50px auto;
-            text-align: center;
-        }
-        .container .info h1 {
-            margin: 0 0 15px;
-            padding: 0;
-            font-size: 36px;
-            font-weight: 300;
-            color: #1a1a1a;
-        }
-        .container .info span {
-            color: #4d4d4d;
-            font-size: 12px;
-        }
-        .container .info span a {
-            color: #000000;
-            text-decoration: none;
-        }
-        .container .info span .fa {
-            color: #EF3B3A;
-        }
+
         body {
             background: #76b852; /* fallback for old browsers */
             background: -webkit-linear-gradient(right, #76b852, #8DC26F);
@@ -104,46 +49,25 @@
         }
 
     </style>
+</head>
+<body>
+    <div>
 
-    {% trans_default_domain 'FOSUserBundle' %}
-    {#<div class="login-page">#}
-        {#<div class="form">#}
-            {#<form {{ path("fos_user_security_check") }} method="post" class="register-form">#}
-                {#<input type="hidden" name="_csrf_token" value="{{ csrf_token }}" />#}
+        {% trans_default_domain 'FOSUserBundle' %}
 
-                {#<input type="text" placeholder="username" name="_username"  value="{{ last_username }}" required="required"/>#}
-                {#<input type="password" placeholder="password" name="_password" required="required"/>#}
+        <div class="login-page">
+            <div class="form">
 
-                {#<input type="text" id="username" name="_username" value="{{ last_username }}" required="required" />#}
-                {#<input type="password" id="password" name="_password" required="required" />#}
+                <form action="{{ path("fos_user_security_check") }}" method="post" class="login-form">
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token }}" />
+                    <input type="text" placeholder="username" name="_username"  value="{{ last_username }}" required="required"/>
+                    <input type="password" placeholder="password" name="_password" required="required"/>
 
-                {#<input type="submit" id="_submit" name="_submit" value="{{ 'security.login.submit'|trans }}" />#}
-            {#</form>#}
-        {#</div>#}
-    {#</div>#}
-
-    <div class="login-page">
-        <div class="form">
-            {#<form class="register-form">#}
-                {#<input type="text" placeholder="name"/>#}
-                {#<input type="password" placeholder="password"/>#}
-                {#<input type="text" placeholder="email address"/>#}
-                {#<button>create</button>#}
-                {#<p class="message">Already registered? <a href="#">Sign In</a></p>#}
-            {#</form>#}
-            <form action="{{ path("fos_user_security_check") }}" method="post" class="login-form">
-                <input type="hidden" name="_csrf_token" value="{{ csrf_token }}" />
-                <input type="text" placeholder="username" name="_username"  value="{{ last_username }}" required="required"/>
-                <input type="password" placeholder="password" name="_password" required="required"/>
-                {#<button>login</button>#}
-                <input type="submit" id="_submit" name="_submit" value="{{ 'security.login.submit'|trans }}" />
-                {#<p class="message">Not registered? <a href="#">Create an account</a></p>#}
-            </form>
+                    <input type="submit" id="_submit" name="_submit" value="{{ 'security.login.submit'|trans }}" />
+                    <strong class="logo">Lotus</strong>
+                </form>
+            </div>
         </div>
     </div>
-    {#<script>#}
-        {#$('.message a').click(function(){#}
-            {#$('form').animate({height: "toggle", opacity: "toggle"}, "slow");#}
-        {#});#}
-    {#</script>#}
-{% endblock fos_user_content %}
+    </body>
+</html>
