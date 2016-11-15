@@ -187,8 +187,15 @@
                 "</tr>";
                 for(k in data){
 
+                    var d = new Date(data[k].performDate.date);
+                    var date = (d.getDate() < 10 ? '0' : '') + d.getDate() + '-' + (d.getMonth() < 9 ? '0' : '') + (d.getMonth() + 1) + '-' + d.getFullYear();
+                    var time = (d.getHours() < 10 ? '0' : '') + d.getHours() + ':' + (d.getMinutes() < 10 ? '0' : '') + d.getMinutes() + ':' + (d.getSeconds() < 10 ? '0' : '') + d.getSeconds();
+
+                    console.log(data[k].performDate.date);
+                    console.log(date + ' ' + time);
+
                     body += "<tr>" +
-                                "<td>" + data[k].performDate.date + "</td>" +
+                                "<td>" + date + ' ' + time + "</td>" +
                                 "<td>" + (data[k].discount ? data[k].discount + '%' : '')  + "</td>" +
                                 "<td>" + data[k].quantity    + "</td>" +
                                 "<td>" + data[k].total       + "</td>" +

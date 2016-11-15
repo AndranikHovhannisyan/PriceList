@@ -207,6 +207,12 @@ class MainController extends Controller
      */
     private function singleExport($priceList, $sheet, $startRow)
     {
+        $sheet->mergeCells("A$startRow:E$startRow")->setCellValue("A$startRow", "Lotus");
+        $sheet->getStyle("A$startRow")->getFont()->setBold(true);
+
+        $startRow++;
+
+
         $sheet->mergeCells("A$startRow:D$startRow")
             ->setCellValue("A$startRow", $priceList->getCompany() . ' '
                 . $priceList->getPerformDate()->format('d-m-Y') . '    N:' . $priceList->getId());
