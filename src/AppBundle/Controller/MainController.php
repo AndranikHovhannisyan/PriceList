@@ -207,7 +207,8 @@ class MainController extends Controller
      */
     private function singleExport($priceList, $sheet, $startRow)
     {
-        $sheet->mergeCells("A$startRow:E$startRow")->setCellValue("A$startRow", "Lotus");
+        $sheet->setCellValue("A$startRow", "Lotus");
+        $sheet->setCellValue("B$startRow", 'N:' . $priceList->getId());
         $sheet->getStyle("A$startRow")->getFont()->setBold(true);
 
         $startRow++;
@@ -215,7 +216,7 @@ class MainController extends Controller
 
         $sheet->mergeCells("A$startRow:D$startRow")
             ->setCellValue("A$startRow", $priceList->getCompany() . ' '
-                . $priceList->getPerformDate()->format('d-m-Y') . '    N:' . $priceList->getId());
+                . $priceList->getPerformDate()->format('d-m-Y'));
 
         $sheet->getStyle("A$startRow")->getFont()->setBold(true);
 
@@ -334,7 +335,7 @@ class MainController extends Controller
         $priceListsQuery = $em->getRepository('AppBundle:PriceList')->findQueryByUser($user, $companyId, $startDate, $endDate);
 
         $paginator  = $this->get('knp_paginator');
-        $pagination = $paginator->paginate($priceListsQuery, $request->query->getInt('page', 1), 15);
+        $pagination = $paginator->paginate($priceListsQuery, $request->query->getInt('page', 1), 100);
 
         $totals = $em->getRepository('AppBundle:PriceList')->findPriceListsTotal(array_keys($pagination->getItems()));
 
