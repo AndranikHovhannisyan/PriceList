@@ -17,12 +17,13 @@ class PriceListRepository extends \Doctrine\ORM\EntityRepository
         }
 
         return $this->getEntityManager()
-            ->createQuery("SELECT pl, plp, p, c
+            ->createQuery("SELECT pl, plp, p, c, u
                            FROM AppBundle:PriceList pl
                            INDEX BY pl.id
                            JOIN pl.priceListProducts plp
                            JOIN plp.product p
                            LEFT JOIN pl.company c
+                           LEFT JOIN c.user u
                            WHERE pl.id IN (:ids)")
             ->setParameter('ids', $ids)
             ->getResult();

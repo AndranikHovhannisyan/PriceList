@@ -161,7 +161,7 @@ class PriceList
     {
         $priceListProducts = [];
         foreach($this->priceListProducts as $priceListProduct){
-            if ($priceListProduct->getDiscount() == 100){
+            if ($priceListProduct->getDiscount() == 100 && $priceListProduct->getQuantity() > 0){
                 $priceListProducts[$priceListProduct->getProduct()->getId()] = $priceListProduct;
             }
         }

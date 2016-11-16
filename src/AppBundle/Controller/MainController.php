@@ -255,7 +255,7 @@ class MainController extends Controller
         $i = $startRow + 1;
         foreach($priceList->getPriceListProducts() as $priceListProduct){
 
-            if ($priceListProduct->getQuantity() == 0 || $priceListProduct->getDiscount() == 100){
+            if (($priceListProduct->getQuantity() == 0 && !isset($zeroPriceListProducts[$priceListProduct->getProduct()->getId()])) || $priceListProduct->getDiscount() == 100){
                 continue;
             }
 
@@ -267,11 +267,13 @@ class MainController extends Controller
                 $zeroCount = $zeroPriceListProducts[$priceListProduct->getProduct()->getId()]->getQuantity();
             }
 
+            $quantity = $priceListProduct->getQuantity() > 0 ? $priceListProduct->getQuantity() : '';
+
             $sheet
                 ->setCellValue('A' . $i, $priceListProduct->getProduct()->getName())
                 ->setCellValue('B' . $i, $priceListProduct->getProduct()->getPrice())
                 ->setCellValue('C' . $i, $priceListProduct->getDiscount() . ($priceListProduct->getDiscount() ? '%' : ''))
-                ->setCellValue('D' . $i, $priceListProduct->getQuantity() . ($zeroCount ? ' + ' . $zeroCount . '(-100%)' : ""))
+                ->setCellValue('D' . $i, $quantity . ($zeroCount ? ($quantity ? ' + ' : '') . $zeroCount . '(-100%)' : ""))
                 ->setCellValue('E' . $i, $price);
 
             for ($j = 65; $j <= 69; $j++) {

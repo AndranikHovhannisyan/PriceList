@@ -28,15 +28,15 @@
 
             {% set zeroPriceListProducts = priceList.zeroPriceListProducts %}
             {% set totalPrice = 0 %}
-            {% for priceListProduct in priceList.priceListProducts if priceListProduct.quantity != 0 and  priceListProduct.discount != 100 %}
+            {% for priceListProduct in priceList.priceListProducts if (priceListProduct.quantity != 0 or zeroPriceListProducts[priceListProduct.product.id] is defined) and  priceListProduct.discount != 100 %}
                 <tr>
                     <td>{{ priceListProduct.product.name }}</td>
                     <td>{{ priceListProduct.product.price }}</td>
                     <td>{{ priceListProduct.discount }}</td>
                     <td>
-                        {{ priceListProduct.quantity }}
-                        {% if zeroPriceListProducts[priceListProduct.product.id] is defined and zeroPriceListProducts[priceListProduct.product.id].quantity != 0 %}
-                            + {{ zeroPriceListProducts[priceListProduct.product.id].quantity }}(-100%)
+                        {{ priceListProduct.quantity > 0 ? priceListProduct.quantity : '' }}
+                        {% if zeroPriceListProducts[priceListProduct.product.id] is defined %}
+                            {{ priceListProduct.quantity > 0 ? '+' : '' }} {{ zeroPriceListProducts[priceListProduct.product.id].quantity }}(-100%)
                         {% endif %}
                     </td>
 
