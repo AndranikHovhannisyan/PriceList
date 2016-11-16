@@ -118,7 +118,7 @@ class MainController extends Controller
             $sheet->getColumnDimension('A')->setWidth(50);
             $sheet->getColumnDimension('B')->setWidth(10);
             $sheet->getColumnDimension('C')->setWidth(10);
-            $sheet->getColumnDimension('D')->setWidth(10);
+            $sheet->getColumnDimension('D')->setWidth(12);
             $sheet->getColumnDimension('E')->setWidth(15);
 
             $sheet->getDefaultStyle()->getAlignment()
@@ -171,7 +171,7 @@ class MainController extends Controller
             $sheet->getColumnDimension('A')->setWidth(50);
             $sheet->getColumnDimension('B')->setWidth(10);
             $sheet->getColumnDimension('C')->setWidth(10);
-            $sheet->getColumnDimension('D')->setWidth(10);
+            $sheet->getColumnDimension('D')->setWidth(12);
             $sheet->getColumnDimension('E')->setWidth(15);
 
             $sheet->getDefaultStyle()->getAlignment()
@@ -237,7 +237,7 @@ class MainController extends Controller
 
         $sheet
             ->setCellValue('A' . $startRow, 'Ապրանքի անվանում')
-            ->setCellValue('B' . $startRow, 'Միավորի գին')
+            ->setCellValue('B' . $startRow, 'Միավոր արժեք')
             ->setCellValue('C' . $startRow, 'Զեղչ')
             ->setCellValue('D' . $startRow, 'Քանակ')
             ->setCellValue('E' . $startRow, 'Արժեքը');
@@ -290,7 +290,7 @@ class MainController extends Controller
         }
 
         $sheet
-            ->setCellValue('D' . $i, "Total Price")
+            ->setCellValue('D' . $i, "Ընդհանուր գումարը")
             ->setCellValue('E' . $i, $totalPrice);
 
         $sheet->getStyle("D$i:E$i")->getFont()->setBold(true);
@@ -473,7 +473,7 @@ class MainController extends Controller
 
         $sheet
             ->setCellValue('A2', 'Ապրանքի անվանում')
-            ->setCellValue('B2', 'Միավորի գին')
+            ->setCellValue('B2', 'Միավոր արժեք')
             ->setCellValue('C2', 'Քանակ')
             ->setCellValue('D2', 'Արժեքը');
 
@@ -509,7 +509,7 @@ class MainController extends Controller
         }
 
         $sheet
-            ->setCellValue('C' . $i, "Total Price")
+            ->setCellValue('C' . $i, "Ընդհանուր գումարը")
             ->setCellValue('D' . $i, $totalPrice);
 
         $sheet->getStyle("D$i:E$i")->getFont()->setBold(true);
