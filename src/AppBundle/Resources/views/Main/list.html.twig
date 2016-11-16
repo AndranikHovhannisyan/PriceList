@@ -10,7 +10,7 @@
     {{ parent() }}
 
     <div class="container content">
-        <form method="POST" action="{{ path('list') }}">
+        <form method="GET" action="{{ path('list') }}">
             <div class="row">
                 <div class="col-sm-3"><strong>Աշխատակից</strong></div>
                 <div class="col-sm-3"><strong>Խանութ</strong></div>
@@ -46,7 +46,7 @@
                     <input type="text" name="end_date" class="form-control datepicker" value="{{ end_date ? end_date|date('d-m-Y') : '' }}"/>
                 </div>
                 <div class="col-sm-2">
-                    <input type="submit" class="btn btn-primary" value="Ֆիլտրել" />
+                    <input type="submit" class="btn btn-primary" name="filter" value="Ֆիլտրել" />
                 </div>
             </div>
         </form>
