@@ -29,6 +29,7 @@ class PriceListType extends AbstractType
     {
         $builder
             ->add('company')
+            ->add('isRegion')
             ->add('billingType', ChoiceType::class, array(
                 'choices' => array(
                     PriceList::$BillingTypes[PriceList::CASH]     => PriceList::CASH,

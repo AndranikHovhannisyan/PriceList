@@ -48,6 +48,11 @@ class PriceList
     protected $user;
 
     /**
+     * @ORM\Column(name="is_region", type="boolean", nullable=false)
+     */
+    protected $isRegion = false;
+
+    /**
      * @ORM\Column(name="perform_date", type="datetime", nullable=false)
      */
     protected $performDate;
@@ -281,5 +286,21 @@ class PriceList
     public function getComment()
     {
         return $this->comment;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getIsRegion()
+    {
+        return $this->isRegion;
+    }
+
+    /**
+     * @param mixed $isRegion
+     */
+    public function setIsRegion($isRegion)
+    {
+        $this->isRegion = $isRegion;
     }
 }

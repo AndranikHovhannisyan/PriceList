@@ -20,6 +20,7 @@ class ProductAdmin extends AbstractAdmin
             ->add('name')
             ->add('code')
             ->add('price')
+            ->add('regionPrice')
             ->add('enabled')
         ;
     }
@@ -35,6 +36,7 @@ class ProductAdmin extends AbstractAdmin
             ->add('name')
             ->add('code')
             ->add('price')
+            ->add('regionPrice')
             ->add('_action', null, array(
                 'actions' => array(
                     'show' => array(),
@@ -54,6 +56,7 @@ class ProductAdmin extends AbstractAdmin
             ->add('name')
             ->add('code')
             ->add('price')
+            ->add('regionPrice')
             ->add('enabled')
         ;
     }
@@ -68,6 +71,7 @@ class ProductAdmin extends AbstractAdmin
             ->add('name')
             ->add('code')
             ->add('price')
+            ->add('regionPrice')
             ->add('enabled')
         ;
     }

@@ -15,3 +15,7 @@
 .well {
     width: 50%;
 }
+
+.region-box {
+    margin-top: -0.5px !important;
+}

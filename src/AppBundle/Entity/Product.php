@@ -45,6 +45,11 @@ class Product
      */
     protected $price;
 
+    /**
+     * @ORM\Column(name="region_price", type="float", nullable=false)
+     */
+    protected $regionPrice;
+
     public function __toString()
     {
         return $this->getname() ? $this->getname() : '';
@@ -146,5 +151,21 @@ class Product
     public function setEnabled($enabled)
     {
         $this->enabled = $enabled;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getRegionPrice()
+    {
+        return $this->regionPrice;
+    }
+
+    /**
+     * @param mixed $regionPrice
+     */
+    public function setRegionPrice($regionPrice)
+    {
+        $this->regionPrice = $regionPrice;
     }
 }
