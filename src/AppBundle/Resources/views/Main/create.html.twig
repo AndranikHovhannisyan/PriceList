@@ -36,7 +36,14 @@
                     </select>
                 </div>
                 <div class="col-sm-2">
-                    {{ form_widget(form.isRegion, {'attr': {'class': 'region-box form-control'} }) }}
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <label for="{{ form.isRegion.vars.id }}">Մարզ</label>
+                        </div>
+                        <div class="col-sm-4">
+                            {{ form_widget(form.isRegion, {'attr': {'class': 'region-box form-control'} }) }}
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -54,13 +61,17 @@
                 {% set i = 1 %}
                 {% set totalPrice = 0 %}
                 {% for priceListProduct in form.priceListProducts %}
+                    <input type="hidden" class="non_region_price_{{ i }}" value="{{ priceListProduct.vars.value.product.price }}"/>
+                    <input type="hidden" class="region_price_{{ i }}" value="{{ priceListProduct.vars.value.product.regionPrice }}"/>
                     <tr>
                         <td>
                             {{ priceListProduct.vars.value.product.name }}
                             <input type="hidden" id="{{ priceListProduct.vars.id }}_product" name="{{ priceListProduct.vars.full_name }}[product]" value="{{ priceListProduct.vars.value.product.id }}" />
                         </td>
 
-                        <td class="single_price_{{ i }}">{{ priceListProduct.vars.value.product.price }}</td>
+                        <td class="single_prices single_price_{{ i }}" data-index="{{ i }}" >
+                            {{ priceListProduct.vars.value.product.price }}
+                        </td>
                         <td>
                             <input onchange="calculatePrice({{ i }})" type="number" id="{{ priceListProduct.vars.id }}_discount" name="{{ priceListProduct.vars.full_name }}[discount]" min="0" value="{{ priceListProduct.vars.value.discount }}" class="form-control discount_{{ i }}"/>
                         </td>
@@ -128,6 +139,7 @@
 
 {% block javascripts %}
     {{ parent() }}
+
     <script src="{{ asset('/bundles/app/js/calculatePrice.js') }}"></script>
     <script src="{{ asset('/bundles/app/select2/js/select2.min.js') }}"></script>
     <script type="text/javascript">
@@ -149,6 +161,18 @@
                 $("#zero_products_count_"+ i).val(null);
             }
         }
+
+        $('#{{ form.isRegion.vars.id }}').on('change', function(){
+            var checked = this.checked;
+            $('.single_prices').each(function(i, self) {
+                var index = $(self).attr('data-index');
+                var price = checked ? $('.region_price_' + index).val() : $('.non_region_price_' + index).val();
+                $('.single_price_' + index).text(price);
+                calculatePrice(index);
+            });
+
+            calculateTotal();
+        })
 
     </script>
 {% endblock %}

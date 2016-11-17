@@ -182,7 +182,7 @@ class MainController extends Controller
             $lastRow = 1;
             foreach($priceLists as $priceList){
                 $lastRow = $this->singleExport($priceList, $sheet, $lastRow);
-                $lastRow += 5;
+                $lastRow += 1;
             }
 
             $writer = $this->get('phpexcel')->createWriter($phpExcelObject, 'Excel5');

@@ -60,7 +60,7 @@ class PriceListRepository extends \Doctrine\ORM\EntityRepository
         }
 
         return $this->getEntityManager()
-            ->createQuery("SELECT pl.id, SUM(p.price * plp.quantity * (100 - COALESCE(plp.discount, 0)) / 100) as total
+            ->createQuery("SELECT pl.id, SUM((CASE WHEN pl.isRegion = true THEN p.regionPrice ELSE p.price END) * plp.quantity * (100 - COALESCE(plp.discount, 0)) / 100) as total
                            FROM AppBundle:PriceList pl
                            INDEX BY pl.id
                            JOIN pl.priceListProducts plp
@@ -78,7 +78,7 @@ class PriceListRepository extends \Doctrine\ORM\EntityRepository
         $endDate = $endDate ? $endDate->format('Y-m-d') . ' 23:59:59' : null;
 
         return $this->getEntityManager()
-            ->createQuery("SELECT  p.name, pl.performDate, plp.discount, plp.quantity, p.price * plp.quantity * (100 - COALESCE(plp.discount, 0)) / 100 as total
+            ->createQuery("SELECT pl.isRegion, (CASE WHEN pl.isRegion = true THEN p.regionPrice ELSE p.price END) as price, p.name, pl.performDate, plp.discount, plp.quantity, (CASE WHEN pl.isRegion = true THEN p.regionPrice ELSE p.price END) * plp.quantity * (100 - COALESCE(plp.discount, 0)) / 100 as total
                            FROM AppBundle:priceList pl
                            JOIN pl.priceListProducts plp
                            JOIN plp.product p
@@ -102,7 +102,7 @@ class PriceListRepository extends \Doctrine\ORM\EntityRepository
         $endDate = $endDate ? $endDate->format('Y-m-d') . ' 23:59:59' : null;
 
         $result = $this->getEntityManager()
-            ->createQuery("SELECT  p.id, p.name, p.price, plp.discount, SUM(plp.quantity) as quantity
+            ->createQuery("SELECT  p.id, p.name, pl.isRegion, (CASE WHEN pl.isRegion = true THEN p.regionPrice ELSE p.price END) as price, plp.discount, SUM(plp.quantity) as quantity
                            FROM AppBundle:priceList pl
                            JOIN pl.priceListProducts plp
                            JOIN plp.product p
@@ -110,7 +110,7 @@ class PriceListRepository extends \Doctrine\ORM\EntityRepository
                            AND plp.quantity != 0
                            AND (pl.performDate >= :startDate OR :startDate IS NULL)
                            AND (pl.performDate <= :endDate OR :endDate IS NULL)
-                           GROUP BY p.id, plp.discount
+                           GROUP BY p.id, pl.isRegion, plp.discount
                            ORDER BY p.name")
             ->setParameter('user', $userId)
             ->setParameter('company', $companyId)
@@ -122,13 +122,13 @@ class PriceListRepository extends \Doctrine\ORM\EntityRepository
         foreach($result as $data){
             if (!isset($products[$data['id']])){
                 $products[$data['id']] = $data;
-                $products[$data['id']]['quantity'] = $data['quantity'] . ($data['discount'] ? "(-{$data['discount']}%) " : ' ');
+                $products[$data['id']]['quantity'] = $data['quantity'] . ($data['isRegion'] ? 'մ' : '')  . ($data['discount'] ? "(-{$data['discount']}%) " : ' ');
                 $products[$data['id']]['calculatedPrice'] = 0;
                 $products[$data['id']]['allQuantity'] = $data['quantity'];
                 $products[$data['id']]['count'] = 1;
             }
             else {
-                $products[$data['id']]['quantity'] .= '+ ' . $data['quantity'] . ($data['discount'] ? "(-{$data['discount']}%) " : ' ');
+                $products[$data['id']]['quantity'] .= '+ ' . $data['quantity'] . ($data['isRegion'] ? 'մ' : '') . ($data['discount'] ? "(-{$data['discount']}%) " : ' ');
                 $products[$data['id']]['allQuantity'] += $data['quantity'];
                 $products[$data['id']]['count']++;
             }
