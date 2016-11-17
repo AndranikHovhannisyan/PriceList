@@ -36,14 +36,7 @@
                     </select>
                 </div>
                 <div class="col-sm-2">
-                    {#<div class="row">#}
-                        {#<div class="col-sm-2">#}
-                            {#<label for="{{ form.isRegion.vars.id }}">Մարզ</label>#}
-                        {#</div>#}
-                        {#<div class="col-sm-9">#}
-                            {{ form_widget(form.isRegion, {'attr': {'class': 'region-box form-control'} }) }}
-                        {#</div>#}
-                    {#</div>#}
+                    {{ form_widget(form.isRegion, {'attr': {'class': 'region-box form-control'} }) }}
                 </div>
             </div>
 

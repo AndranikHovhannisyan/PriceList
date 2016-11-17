@@ -7,11 +7,14 @@
         <p class="text-right">{{ priceList.performDate|date('d-m-Y H:i:s') }}</p>
 
         <div class="row">
-            <div class="col-sm-10">
+            <div class="col-sm-9">
                 <input class="form-control" type="text" value="{{ priceList.company }}" disabled>
             </div>
             <div class="col-sm-2">
                 <input class="form-control" type="text" value="{{ priceList.billingTypes[priceList.billingType] }}" disabled>
+            </div>
+            <div class="col-sm-1">
+                <input class="form-control region-box" type="checkbox" {% if priceList.isRegion %}checked{% endif %} disabled>
             </div>
         </div>
 
