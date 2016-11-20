@@ -168,15 +168,20 @@ class PriceListRepository extends \Doctrine\ORM\EntityRepository
 
             if (!isset($companies[$value['cid']][$value['id']])){
                 $companies[$value['cid']][$value['id']] = $value;
-                $companies[$value['cid']][$value['id']]['quantity'] = $value['quantity'] . ($value['isRegion'] ? 'մ' : '')  . ($value['discount'] ? "(-{$value['discount']}%) " : ' ');
+                if ($value['quantity']){
+                    $companies[$value['cid']][$value['id']]['quantity'] = $value['quantity'] . ($value['isRegion'] ? 'մ' : '')  . ($value['discount'] ? "(-{$value['discount']}%) " : ' ');
+                    $companies[$value['cid']][$value['id']]['count'] = 1;
+                }
                 $companies[$value['cid']][$value['id']]['allQuantity'] = $value['quantity'];
                 $companies[$value['cid']][$value['id']]['calculatedPrice'] = 0;
-                $companies[$value['cid']][$value['id']]['count'] = 1;
             }
             else {
-                $companies[$value['cid']][$value['id']]['quantity'] .= '+ ' . $value['quantity'] . ($value['isRegion'] ? 'մ' : '') . ($value['discount'] ? "(-{$value['discount']}%) " : ' ');
+                if ($value['quantity']){
+                    $q = $companies[$value['cid']][$value['id']]['quantity'];
+                    $companies[$value['cid']][$value['id']]['quantity'] .= ($q ? '+ ' : '') . $value['quantity'] . ($value['isRegion'] ? 'մ' : '') . ($value['discount'] ? "(-{$value['discount']}%) " : ' ');
+                    $companies[$value['cid']][$value['id']]['count']++;
+                }
                 $companies[$value['cid']][$value['id']]['allQuantity'] += $value['quantity'];
-                $companies[$value['cid']][$value['id']]['count']++;
             }
 
             $companies[$value['cid']][$value['id']]['calculatedPrice'] += $value['price'] * $value['quantity'] * (100 - $value['discount']) / 100;
