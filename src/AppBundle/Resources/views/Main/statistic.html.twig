@@ -13,13 +13,13 @@
     <div class="container content">
         <form method="POST" action="{{ path('statistic') }}">
             <div class="row">
-                <div class="col-sm-3"><strong>Աշխատակից</strong></div>
+                <div class="col-sm-4"><strong>Աշխատակից</strong></div>
                 <div class="col-sm-3"><strong>Խանութ</strong></div>
                 <div class="col-sm-2"><strong>Սկսած</strong></div>
                 <div class="col-sm-2"><strong>Մինչև</strong></div>
             </div>
             <div class="row">
-                <div class="col-sm-3">
+                <div class="col-sm-4">
                     <select id="user-select" name="user[]" class="form-control select2" multiple="multiple">
                         <option value=0></option>
                         {% for user in users %}
@@ -41,7 +41,7 @@
                 <div class="col-sm-2">
                     <input type="text" name="end_date" class="form-control datepicker" value="{{ end_date ? end_date|date('d-m-Y') : '' }}"/>
                 </div>
-                <div class="col-sm-2">
+                <div class="col-sm-1">
                     <input type="submit" class="btn btn-primary" value="Ֆիլտրել" />
                 </div>
             </div>
