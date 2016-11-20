@@ -20,10 +20,10 @@
             </div>
             <div class="row">
                 <div class="col-sm-3">
-                    <select id="user-select" name="user" class="form-control select2">
+                    <select id="user-select" name="user[]" class="form-control select2" multiple="multiple">
                         <option value=0></option>
                         {% for user in users %}
-                            <option value="{{ user.id }}" {% if userId is not null and user.id == userId %}selected="selected"{% endif %}>{{ user }}</option>
+                            <option value="{{ user.id }}" >{{ user }}</option>
                         {% endfor %}
                     </select>
                 </div>
@@ -135,6 +135,7 @@
 
     <script type="text/javascript">
         $('.select2').select2();
+        $('#user-select').val({{ userIds|json_encode|raw }}).trigger("change");
 
         $( ".datepicker" ).datepicker({
             dateFormat: "dd-mm-yy"
@@ -157,8 +158,8 @@
         function showSaleDetails(product) {
             var url = '{{ path('sale_details') }}';
             var params = {};
-            {% if userId is not null %}
-                params.user = {{ userId }};
+            {% if userIds is not null %}
+                params.user = {{ userIds|json_encode|raw }};
             {% endif %}
             {% if companyId is not null %}
                 params.company = {{ companyId }};

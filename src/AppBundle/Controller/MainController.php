@@ -150,6 +150,12 @@ class MainController extends Controller
      */
     public function listExportAction(Request $request)
     {
+        if (!is_null($request->get('table_export'))){
+            return $this->listTableExportAction($request);
+        }
+
+
+
         $em = $this->getDoctrine()->getManager();
 
         $ids = $request->get('ids');
@@ -260,8 +266,8 @@ class MainController extends Controller
                 continue;
             }
 
-            $price = $priceListProduct->getProduct()->getPrice() * $priceListProduct->getQuantity()
-                * (100 - $priceListProduct->getDiscount()) / 100;
+            $singlePrice = $priceListProduct->getPriceList()->getIsRegion() ? $priceListProduct->getProduct()->getRegionPrice() : $priceListProduct->getProduct()->getPrice();
+            $price = $singlePrice * $priceListProduct->getQuantity() * (100 - $priceListProduct->getDiscount()) / 100;
 
             $zeroCount = 0;
             if (isset($zeroPriceListProducts[$priceListProduct->getProduct()->getId()])){
@@ -369,32 +375,21 @@ class MainController extends Controller
         $users     = $em->getRepository('AppBundle:User')->findAllIndexedById();
         $result    = [];
 
-        $userId    = $request->get('user', null);
+        $userIds   = $request->get('user', null);
         $companyId = $request->get('company', null);
         $productId = $request->get('product', null);
         $startDate = $request->get('start_date', null);
         $endDate   = $request->get('end_date', null);
 
-        $userId    = $userId    ? $userId    : null;
+        $userIds   = $userIds   ? $userIds   : null;
         $companyId = $companyId ? $companyId : null;
         $productId = $productId ? $productId : null;
         $startDate = $startDate ? new \DateTime($startDate) : null;
         $endDate   = $endDate   ? new \DateTime($endDate)   : null;
 
         if (true || $request->getMethod() == "POST"){
-            if (is_null($companyId) && is_null($userId)){
-                return [
-                    'companyId'  => null,
-                    'userId'     => null,
-                    'start_date' => $startDate,
-                    'end_date'   => $endDate,
-                    'companies'  => $companies,
-                    'users'      => $users,
-                    'result'     => []
-                ];
-            }
 
-            if (!is_null($companyId) && !is_null($userId)){
+            if (!is_null($companyId) && !is_null($userIds)){
                 throw new HttpException(Response::HTTP_BAD_REQUEST);
             }
 
@@ -402,28 +397,39 @@ class MainController extends Controller
                 throw new HttpException(Response::HTTP_BAD_REQUEST);
             }
 
-            if(!is_null($userId) && !isset($users[$userId])){
-                throw new HttpException(Response::HTTP_BAD_REQUEST);
+            $usernames = '';
+            if (!is_null($userIds)){
+                foreach($userIds as $userId){
+
+                    if(!isset($users[$userId])){
+                        throw new HttpException(Response::HTTP_BAD_REQUEST);
+                    }
+                    else {
+                        $usernames .= $users[$userId] . ', ';
+                    }
+                }
+
+                $usernames = substr($usernames, 0, -2);
             }
 
             if ($request->get('_route') == "sale_details"){
-                $result = $em->getRepository('AppBundle:PriceList')->findSaleDetails($userId, $companyId, $productId, $startDate, $endDate);
+                $result = $em->getRepository('AppBundle:PriceList')->findSaleDetails($userIds, $companyId, $productId, $startDate, $endDate);
 
                 return new JsonResponse($result);
             }
 
-            $result = $em->getRepository('AppBundle:PriceList')->findStatistic($userId, $companyId, $startDate, $endDate);
+            $result = $em->getRepository('AppBundle:PriceList')->findStatistic($userIds, $companyId, $startDate, $endDate);
+
 
             if ($request->get('export_btn')){
                 return $this->exportStatistic($result, isset($companies[$companyId]) ? $companies[$companyId] : null,
-                                      isset($users[$userId]) ? $users[$userId] : null,
-                                      $startDate ? $startDate->format('d-m-Y') : null, $endDate ? $endDate->format('d-m-Y') : null);
+                    $usernames, $startDate ? $startDate->format('d-m-Y') : null, $endDate ? $endDate->format('d-m-Y') : null);
             }
         }
 
         return [
             'companyId'  => $companyId,
-            'userId'     => $userId,
+            'userIds'    => $userIds,
             'start_date' => $startDate,
             'end_date'   => $endDate,
             'companies'  => $companies,
@@ -432,7 +438,7 @@ class MainController extends Controller
         ];
     }
 
-    private function exportStatistic($result, $company, $user, $startDate, $endDate)
+    private function exportStatistic($result, $company, $usernames, $startDate, $endDate)
     {
         $phpExcelObject =  $this->get('phpexcel')->createPHPExcelObject();
 
@@ -457,7 +463,7 @@ class MainController extends Controller
 
 
         $sheet->mergeCells("A1:D1")
-            ->setCellValue("A1", $company . " " . $user . " " . $startDate . (($startDate || $endDate) ? "->" : "") . $endDate);
+            ->setCellValue("A1", $company . " " . $usernames . " " . $startDate . (($startDate || $endDate) ? "->" : "") . $endDate);
 
         $sheet->getStyle("A1")->getFont()->setBold(true);
 
@@ -605,5 +611,99 @@ class MainController extends Controller
         $response->setContent(file_get_contents($filename));
 
         return $response;
+    }
+
+    /**
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
+     */
+    private function listTableExportAction(Request $request)
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        $ids = $request->get('ids');
+
+        if (count($ids) > 0){
+            $ids = array_keys($ids);
+            $companies = $em->getRepository('AppBundle:PriceList')->findTableExport($ids);
+
+            $phpExcelObject =  $this->get('phpexcel')->createPHPExcelObject();
+
+            $phpExcelObject->getProperties()
+                ->setCreator("Author")
+                ->setLastModifiedBy("Maarten Balliauw")
+                ->setTitle("Title")
+                ->setSubject("Office 2007 XLSX Test Document");
+
+            $sheet = $phpExcelObject->setActiveSheetIndex(0);
+
+            $sheet->getColumnDimension('A')->setWidth(50);
+
+            $sheet->getDefaultStyle()->getAlignment()
+                ->setHorizontal(\PHPExcel_Style_Alignment::HORIZONTAL_LEFT)
+                ->setVertical(\PHPExcel_Style_Alignment::VERTICAL_CENTER)
+                ->setWrapText(true);
+
+
+            $i = 2;
+            $productColumns = [];
+            foreach($companies as $company){
+
+                $cell = \PHPExcel_Cell::coordinateFromString('A' . $i);
+                foreach($company as $product){
+                    if ($cell[0] == 'A'){
+                        $sheet->setCellValue($cell[0] . $i, $product['company']);
+                    }
+                    else {
+                        if (trim($product['quantity']) != '0'){
+                            if (isset($productColumns[$product['id']])){
+                                $cell[0] = $productColumns[$product['id']];
+                            }
+
+                            $quantity = $product['quantity'] . ($product['count'] > 1 ? ' = ' . $product['allQuantity'] : '');
+                            $sheet->setCellValue($cell[0] . $i, $quantity . "\n" . $product['calculatedPrice']);
+                            $sheet->getStyle($cell[0] . $i)->getAlignment()->setWrapText(true);
+                        }
+
+                        if ($i == 2){
+                            $sheet->getStyle($cell[0] . 1)->getAlignment()->setTextRotation(90);
+                            $sheet->setCellValue($cell[0] . 1, $product['name']);
+
+                            $borders = $sheet->getStyle($cell[0] . 1)->getBorders();
+                            $borders->getTop()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
+                            $borders->getBottom()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
+                            $borders->getLeft()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
+                            $borders->getRight()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
+
+                            $productColumns[$product['id']] = $cell[0];
+                        }
+                    }
+
+                    $borders = $sheet->getStyle($cell[0] . $i)->getBorders();
+                    $borders->getTop()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
+                    $borders->getBottom()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
+                    $borders->getLeft()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
+                    $borders->getRight()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
+
+                    ++$cell[0];
+                }
+
+                $i++;
+            }
+
+            $writer = $this->get('phpexcel')->createWriter($phpExcelObject, 'Excel5');
+
+            $response = $this->get('phpexcel')->createStreamedResponse($writer);
+            $response->headers->set('Content-Type', 'text/vnd.ms-excel; charset=utf-8');
+            $response->headers->set('Content-Disposition', 'attachment; filename=export.xls');
+            $response->headers->set('Pragma', 'public');
+            $response->headers->set('Cache-Control', 'maxage=1');
+
+            return $response;
+        }
+
+        $referer = $request->headers->get('referer');
+
+        return $this->redirect($referer);
     }
 }
