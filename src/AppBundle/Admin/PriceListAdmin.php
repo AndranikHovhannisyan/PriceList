@@ -6,12 +6,21 @@ use Sonata\AdminBundle\Admin\AbstractAdmin;
 use Sonata\AdminBundle\Datagrid\DatagridMapper;
 use Sonata\AdminBundle\Datagrid\ListMapper;
 use Sonata\AdminBundle\Form\FormMapper;
+use Sonata\AdminBundle\Route\RouteCollection;
 use Sonata\AdminBundle\Show\ShowMapper;
 use AppBundle\Form\PriceListProductType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 
 class PriceListAdmin extends AbstractAdmin
 {
+    protected function configureRoutes(RouteCollection $collection)
+    {
+        $collection
+            ->remove('create')
+            ->remove('edit')
+            ->remove('view');
+    }
+
     /**
      * @param DatagridMapper $datagridMapper
      */
@@ -20,6 +29,7 @@ class PriceListAdmin extends AbstractAdmin
         $datagridMapper
             ->add('id')
             ->add('user')
+            ->add('company')
         ;
     }
 
@@ -31,50 +41,12 @@ class PriceListAdmin extends AbstractAdmin
         $listMapper
             ->add('id')
             ->add('user')
+            ->add('company')
             ->add('_action', null, array(
                 'actions' => array(
-                    'show' => array(),
-                    'edit' => array(),
                     'delete' => array(),
                 )
             ))
         ;
-    }
-
-    /**
-     * @param FormMapper $formMapper
-     */
-    protected function configureFormFields(FormMapper $formMapper)
-    {
-        $formMapper
-            ->add('priceListProducts', CollectionType::class, array(
-                'entry_type' => PriceListProductType::class,
-                'allow_add'    => true,
-                'allow_delete' => true,
-            ))
-        ;
-    }
-
-    /**
-     * @param ShowMapper $showMapper
-     */
-    protected function configureShowFields(ShowMapper $showMapper)
-    {
-        $showMapper
-            ->add('id')
-            ->add('priceListProducts', null, ['template' => 'AppBundle:Admin:PriceListProducts.html.twig'])
-        ;
-    }
-
-    public function prePersist($object)
-    {
-        $this->preUpdate($object);
-    }
-
-    public function preUpdate($object)
-    {
-        foreach($object->getPriceListProducts() as $priceListProducts){
-            $priceListProducts->setPriceList($object);
-        }
     }
 }

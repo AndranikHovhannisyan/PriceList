@@ -16,3 +16,9 @@ services:
         arguments: [~, AppBundle\Entity\Company, SonataAdminBundle:CRUD]
         tags:
             - { name: sonata.admin, manager_type: orm, group: admin, label: Company }
+
+    app.admin.price_list:
+        class: AppBundle\Admin\PriceListAdmin
+        arguments: [~, AppBundle\Entity\PriceList, SonataAdminBundle:CRUD]
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: admin, label: PriceList }

@@ -88,7 +88,7 @@ class PriceList
 
     public function __toString()
     {
-        return $this->getName() ? $this->getName() : '';
+        return $this->getCompany() ? $this->getCompany()->getName() : '';
     }
 
     /**
@@ -99,30 +99,6 @@ class PriceList
     public function getId()
     {
         return $this->id;
-    }
-
-    /**
-     * Set name
-     *
-     * @param string $name
-     *
-     * @return PriceList
-     */
-    public function setName($name)
-    {
-        $this->name = $name;
-
-        return $this;
-    }
-
-    /**
-     * Get name
-     *
-     * @return string
-     */
-    public function getName()
-    {
-        return $this->name;
     }
 
     /**
