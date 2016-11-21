@@ -69,7 +69,7 @@
                             <td>{{ priceList.id }}</td>
                             <td>{{ priceList.company }}</td>
                             <td>{{ priceList.performDate|date('d-m-Y H:i:s') }}</td>
-                            <td>{{ priceList.total }}</td>
+                            <td>{{ priceList.total|round(2, 'floor') }}</td>
                             {% if is_granted('ROLE_ADMIN') %}<th>{{ priceList.user.username }}</th>{% endif %}
                             <td>
                                 <a href="{{ path('view', {'id': priceList.id}) }}">Դիտել</a>

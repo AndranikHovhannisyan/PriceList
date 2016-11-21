@@ -40,7 +40,7 @@ class PriceListProduct
     protected $product;
 
     /**
-     * @ORM\Column(name="discount", type="integer", nullable=true)
+     * @ORM\Column(name="discount", type="float", precision=10, scale=2, nullable=true)
      */
     protected $discount;
 
