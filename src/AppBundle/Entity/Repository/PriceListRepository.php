@@ -148,12 +148,13 @@ class PriceListRepository extends \Doctrine\ORM\EntityRepository
         }
 
         $result = $this->getEntityManager()
-            ->createQuery("SELECT c.id as cid, c.name as company, p.id, p.name, pl.isRegion, (CASE WHEN pl.isRegion = true THEN p.regionPrice ELSE p.price END) as price,
+            ->createQuery("SELECT c.id as cid, c.name as company, u.id as uid, u.username, p.id, p.name, pl.isRegion, (CASE WHEN pl.isRegion = true THEN p.regionPrice ELSE p.price END) as price,
                                   plp.discount, SUM(plp.quantity) as quantity
                            FROM AppBundle:PriceList pl
                            JOIN pl.priceListProducts plp
                            JOIN plp.product p
                            JOIN pl.company c
+                           JOIN c.user u
                            WHERE pl.id IN (:ids)
                            GROUP BY c.id, p.id, pl.isRegion, plp.discount
                            ORDER BY c.id, p.name")
@@ -168,6 +169,7 @@ class PriceListRepository extends \Doctrine\ORM\EntityRepository
 
             if (!isset($companies[$value['cid']][$value['id']])){
                 $companies[$value['cid']][$value['id']] = $value;
+                $companies[$value['cid']][$value['id']]['count'] = 0;
                 if ($value['quantity']){
                     $companies[$value['cid']][$value['id']]['quantity'] = $value['quantity'] . ($value['isRegion'] ? 'մ' : '')  . ($value['discount'] ? "(-{$value['discount']}%) " : ' ');
                     $companies[$value['cid']][$value['id']]['count'] = 1;

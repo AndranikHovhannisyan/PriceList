@@ -278,7 +278,7 @@ class MainController extends Controller
 
             $sheet
                 ->setCellValue('A' . $i, $priceListProduct->getProduct()->getName())
-                ->setCellValue('B' . $i, $priceListProduct->getProduct()->getPrice())
+                ->setCellValue('B' . $i, $singlePrice)
                 ->setCellValue('C' . $i, $priceListProduct->getDiscount() . ($priceListProduct->getDiscount() ? '%' : ''))
                 ->setCellValue('D' . $i, $quantity . ($zeroCount ? ($quantity ? ' + ' : '') . $zeroCount . '(-100%)' : ""))
                 ->setCellValue('E' . $i, $price);
@@ -647,36 +647,53 @@ class MainController extends Controller
 
             $i = 2;
             $productColumns = [];
+            $allPrice = 0;
+            $users = [];
             foreach($companies as $company){
 
                 $cell = \PHPExcel_Cell::coordinateFromString('A' . $i);
+                $singlePrice = 0;
                 foreach($company as $product){
+
+                    if (!isset($users[$product['uid']])){
+                        $users[$product['uid']] = $product['username'];
+                    }
+
+
                     if ($cell[0] == 'A'){
                         $sheet->setCellValue($cell[0] . $i, $product['company']);
+
+                        $borders = $sheet->getStyle($cell[0] . $i)->getBorders();
+                        $borders->getTop()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
+                        $borders->getBottom()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
+                        $borders->getLeft()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
+                        $borders->getRight()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
+
+                        ++$cell[0];
                     }
-                    else {
-                        if (trim($product['quantity']) != '0'){
-                            if (isset($productColumns[$product['id']])){
-                                $cell[0] = $productColumns[$product['id']];
-                            }
 
-                            $quantity = $product['quantity'] . ($product['count'] > 1 ? ' = ' . $product['allQuantity'] : '');
-                            $sheet->setCellValue($cell[0] . $i, $quantity . "\n" . $product['calculatedPrice']);
-                            $sheet->getStyle($cell[0] . $i)->getAlignment()->setWrapText(true);
+                    if (trim($product['quantity']) != '0'){
+                        if (isset($productColumns[$product['id']])){
+                            $cell[0] = $productColumns[$product['id']];
                         }
 
-                        if ($i == 2){
-                            $sheet->getStyle($cell[0] . 1)->getAlignment()->setTextRotation(90);
-                            $sheet->setCellValue($cell[0] . 1, $product['name']);
+                        $quantity = $product['quantity'] . ($product['count'] > 1 ? ' = ' . $product['allQuantity'] : '');
+                        $sheet->setCellValue($cell[0] . $i, $quantity . "\n" . $product['calculatedPrice']);
+                        $singlePrice += $product['calculatedPrice'];
+                        $sheet->getStyle($cell[0] . $i)->getAlignment()->setWrapText(true);
+                    }
 
-                            $borders = $sheet->getStyle($cell[0] . 1)->getBorders();
-                            $borders->getTop()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
-                            $borders->getBottom()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
-                            $borders->getLeft()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
-                            $borders->getRight()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
+                    if ($i == 2){
+                        $sheet->getStyle($cell[0] . 1)->getAlignment()->setTextRotation(90);
+                        $sheet->setCellValue($cell[0] . 1, $product['name']);
 
-                            $productColumns[$product['id']] = $cell[0];
-                        }
+                        $borders = $sheet->getStyle($cell[0] . 1)->getBorders();
+                        $borders->getTop()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
+                        $borders->getBottom()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
+                        $borders->getLeft()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
+                        $borders->getRight()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
+
+                        $productColumns[$product['id']] = $cell[0];
                     }
 
                     $borders = $sheet->getStyle($cell[0] . $i)->getBorders();
@@ -688,8 +705,45 @@ class MainController extends Controller
                     ++$cell[0];
                 }
 
+                if ($i == 2) {
+                    $sheet->setCellValue($cell[0] . 1, 'Ընդհանուր');
+
+                    $borders = $sheet->getStyle($cell[0] . 1)->getBorders();
+                    $sheet->getStyle($cell[0] . 1)->getAlignment()->setTextRotation(90);
+                    $borders->getTop()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
+                    $borders->getBottom()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
+                    $borders->getLeft()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
+                    $borders->getRight()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
+                }
+
+                $sheet->setCellValue($cell[0] . $i, $singlePrice);
+                $borders = $sheet->getStyle($cell[0] . $i)->getBorders();
+                $borders->getTop()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
+                $borders->getBottom()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
+                $borders->getLeft()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
+                $borders->getRight()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
+
+                $allPrice += $singlePrice;
+
                 $i++;
             }
+
+            $sheet->setCellValue($cell[0] . $i, $allPrice);
+            $borders = $sheet->getStyle($cell[0] . $i)->getBorders();
+            $borders->getTop()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
+            $borders->getBottom()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
+            $borders->getLeft()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
+            $borders->getRight()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
+
+
+            $sheet->setCellValue('A1', implode("\n", $users));
+            $borders = $sheet->getStyle('A1')->getBorders();
+            $sheet->getStyle('A1')->getAlignment()->setWrapText(true);
+            $borders->getTop()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
+            $borders->getBottom()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
+            $borders->getLeft()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
+            $borders->getRight()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
+
 
             $writer = $this->get('phpexcel')->createWriter($phpExcelObject, 'Excel5');
 
