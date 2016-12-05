@@ -30,13 +30,15 @@ class PriceListRepository extends \Doctrine\ORM\EntityRepository
     }
 
 
-    public function findQueryByUser($user, $companyId, $startDate, $endDate)
+    public function findQueryByUser($user, $companyId, $startDate, $endDate, $getIds = false)
     {
         $startDate = $startDate ? $startDate->format('Y-m-d') : null;
         $endDate   = $endDate   ? $endDate->format('Y-m-d')   : null;
 
-        return $this->getEntityManager()
-            ->createQuery("SELECT pl, plp, p, c
+        $select = $getIds ? 'pl.id' : 'pl, plp, p, c';
+
+        $query = $this->getEntityManager()
+            ->createQuery("SELECT $select
                            FROM AppBundle:PriceList pl
                            INDEX BY pl.id
                            JOIN pl.priceListProducts plp
@@ -51,7 +53,12 @@ class PriceListRepository extends \Doctrine\ORM\EntityRepository
             ->setParameter('company', $companyId)
             ->setParameter('startDate', $startDate)
             ->setParameter('endDate', $endDate);
+
+        return $getIds ? $query->getResult() : $query;
     }
+
+
+
 
     public function findPriceListsTotal($priceListIds)
     {
@@ -189,6 +196,7 @@ class PriceListRepository extends \Doctrine\ORM\EntityRepository
             $companies[$value['cid']][$value['id']]['calculatedPrice'] += $value['price'] * $value['quantity'] * (100 - $value['discount']) / 100;
         }
 
+        ksort($companies);
         return $companies;
     }
 }

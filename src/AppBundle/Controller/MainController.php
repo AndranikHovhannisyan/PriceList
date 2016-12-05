@@ -150,12 +150,6 @@ class MainController extends Controller
      */
     public function listExportAction(Request $request)
     {
-        if (!is_null($request->get('table_export'))){
-            return $this->listTableExportAction($request);
-        }
-
-
-
         $em = $this->getDoctrine()->getManager();
 
         $ids = $request->get('ids');
@@ -338,6 +332,12 @@ class MainController extends Controller
         $endDate   = $endDate   ? new \DateTime($endDate)   : null;
 
         $user = $this->isGranted('ROLE_ADMIN') ? $userId : $this->getUser();
+
+        if (!is_null($request->get('table_export'))){
+            $ids = $em->getRepository('AppBundle:PriceList')->findQueryByUser($user, $companyId, $startDate, $endDate, true);
+            return $this->listTableExportAction($ids, $request);
+        }
+
         $priceListsQuery = $em->getRepository('AppBundle:PriceList')->findQueryByUser($user, $companyId, $startDate, $endDate);
 
         $paginator  = $this->get('knp_paginator');
@@ -614,14 +614,13 @@ class MainController extends Controller
     }
 
     /**
+     * @param $ids
      * @param Request $request
      * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
-    private function listTableExportAction(Request $request)
+    private function listTableExportAction($ids, Request $request)
     {
         $em = $this->getDoctrine()->getManager();
-
-        $ids = $request->get('ids');
 
         if (count($ids) > 0){
             $ids = array_keys($ids);
@@ -736,7 +735,12 @@ class MainController extends Controller
             $borders->getRight()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
 
 
-            $sheet->setCellValue('A1', implode("\n", $users));
+            $corner = implode("\n", $users);
+            if ($request->get('start_date') || $request->get('end_date')) {
+                $corner .= "\n" . $request->get('start_date') . ' -> ' . $request->get('end_date');
+            }
+
+            $sheet->setCellValue('A1', $corner);
             $borders = $sheet->getStyle('A1')->getBorders();
             $sheet->getStyle('A1')->getAlignment()->setWrapText(true);
             $borders->getTop()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
