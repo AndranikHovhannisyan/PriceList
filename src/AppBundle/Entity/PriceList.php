@@ -73,6 +73,11 @@ class PriceList
     protected $comment;
 
     /**
+     * @ORM\Column(name="type", type="smallint", nullable=true)
+     */
+    protected $type = Product::ECONOMIC;
+
+    /**
      * @var
      */
     protected $total;
@@ -278,5 +283,29 @@ class PriceList
     public function setIsRegion($isRegion)
     {
         $this->isRegion = $isRegion;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getType()
+    {
+        return $this->type;
+    }
+
+    /**
+     * @param mixed $type
+     */
+    public function setType($type)
+    {
+        $this->type = $type;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getTypeName()
+    {
+        return Product::$Types[$this->getType()];
     }
 }

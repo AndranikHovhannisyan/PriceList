@@ -2,11 +2,13 @@
 
 namespace AppBundle\Admin;
 
+use AppBundle\Entity\Product;
 use Sonata\AdminBundle\Admin\AbstractAdmin;
 use Sonata\AdminBundle\Datagrid\DatagridMapper;
 use Sonata\AdminBundle\Datagrid\ListMapper;
 use Sonata\AdminBundle\Form\FormMapper;
 use Sonata\AdminBundle\Show\ShowMapper;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 
 class ProductAdmin extends AbstractAdmin
 {
@@ -21,6 +23,12 @@ class ProductAdmin extends AbstractAdmin
             ->add('code')
             ->add('price')
             ->add('regionPrice')
+            ->add('type', null, [], ChoiceType::class, array(
+                'choices' => array(
+                    Product::$Types[Product::ECONOMIC] => Product::ECONOMIC,
+                    Product::$Types[Product::JUICE]    => Product::JUICE
+                )
+            ))
             ->add('enabled')
         ;
     }
@@ -37,6 +45,7 @@ class ProductAdmin extends AbstractAdmin
             ->add('code')
             ->add('price')
             ->add('regionPrice')
+            ->add('typeName')
             ->add('_action', null, array(
                 'actions' => array(
                     'show' => array(),
@@ -57,6 +66,12 @@ class ProductAdmin extends AbstractAdmin
             ->add('code')
             ->add('price')
             ->add('regionPrice')
+            ->add('type', ChoiceType::class, array(
+                'choices' => array(
+                    Product::$Types[Product::ECONOMIC] => Product::ECONOMIC,
+                    Product::$Types[Product::JUICE]    => Product::JUICE
+                )
+            ))
             ->add('enabled')
         ;
     }
@@ -72,6 +87,12 @@ class ProductAdmin extends AbstractAdmin
             ->add('code')
             ->add('price')
             ->add('regionPrice')
+            ->add('type', ChoiceType::class, array(
+                'choices' => array(
+                    Product::$Types[Product::ECONOMIC] => Product::ECONOMIC,
+                    Product::$Types[Product::JUICE]    => Product::JUICE
+                )
+            ))
             ->add('enabled')
         ;
     }

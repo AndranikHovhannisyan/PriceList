@@ -5,6 +5,7 @@ namespace AppBundle\Controller;
 use AppBundle\Entity\Company;
 use AppBundle\Entity\PriceList;
 use AppBundle\Entity\PriceListProduct;
+use AppBundle\Entity\Product;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
@@ -21,16 +22,18 @@ use Symfony\Component\Process\Process;
 class MainController extends Controller
 {
     /**
-     * @Route("/create/{id}", name="single", requirements={"id"="\d+"})
+     * @Route("/create/{type}/{companyId}/{id}", name="single", requirements={"id"="\d+", "companyId"="\d+", "type"="economic|juice"})
      * @Security("has_role('ROLE_USER')")
      * @Template()
      */
-    public function createAction(Request $request, $id = null)
+    public function createAction(Request $request, $type = 'economic', $companyId = null, $id = null)
     {
+        $type = ($type == 'economic') ? Product::ECONOMIC : Product::JUICE;
+
         $user = $this->isGranted('ROLE_ADMIN') ? null : $this->getUser();
         $em = $this->getDoctrine()->getManager();
         $companies = $em->getRepository('AppBundle:Company')->findAllIndexedById($user);
-        $products = $em->getRepository('AppBundle:Product')->findAllIndexedById();
+        $products = $em->getRepository('AppBundle:Product')->findAllIndexedById($type);
 
         if (is_null($id)){
             $priceList = new PriceList();
@@ -156,7 +159,7 @@ class MainController extends Controller
 
         if (count($ids) > 0){
             $ids = array_keys($ids);
-            $priceLists = $em->getRepository('AppBundle:PriceList')->findWithRelations($ids);
+            $priceLists = $em->getRepository('AppBundle:PriceList')->findWithRelations($ids, true);
 
             $phpExcelObject =  $this->get('phpexcel')->createPHPExcelObject();
 
@@ -209,6 +212,7 @@ class MainController extends Controller
     {
         $sheet->setCellValue("A$startRow", "Lotus");
         $sheet->setCellValue("B$startRow", 'N:' . $priceList->getId());
+        $sheet->setCellValue("E$startRow", $priceList->getTypeName());
         $sheet->getStyle("A$startRow")->getFont()->setBold(true);
 
         $startRow++;
@@ -323,22 +327,24 @@ class MainController extends Controller
 
         $userId    = $request->get('user', null);
         $companyId = $request->get('company', null);
+        $type      = $request->get('type', null);
         $startDate = $request->get('start_date');
         $endDate   = $request->get('end_date');
 
         $userId    = $userId    ? $userId    : null;
         $companyId = $companyId ? $companyId : null;
+        $type      = $type ? $type : null;
         $startDate = $startDate ? new \DateTime($startDate) : null;
         $endDate   = $endDate   ? new \DateTime($endDate)   : null;
 
         $user = $this->isGranted('ROLE_ADMIN') ? $userId : $this->getUser();
 
         if (!is_null($request->get('table_export'))){
-            $ids = $em->getRepository('AppBundle:PriceList')->findQueryByUser($user, $companyId, $startDate, $endDate, true);
+            $ids = $em->getRepository('AppBundle:PriceList')->findQueryByUser($user, $companyId, $startDate, $endDate, true, $type);
             return $this->listTableExportAction($ids, $request);
         }
 
-        $priceListsQuery = $em->getRepository('AppBundle:PriceList')->findQueryByUser($user, $companyId, $startDate, $endDate);
+        $priceListsQuery = $em->getRepository('AppBundle:PriceList')->findQueryByUser($user, $companyId, $startDate, $endDate, false, $type);
 
         $paginator  = $this->get('knp_paginator');
         $pagination = $paginator->paginate($priceListsQuery, $request->query->getInt('page', 1), 100);
@@ -356,6 +362,7 @@ class MainController extends Controller
             'users'       => $users,
             'companies'   => $companies,
             'companyId'   => $companyId,
+            'type'        => $type,
             'user_id'     => $userId,
             'start_date'  => $startDate,
             'end_date'    => $endDate
@@ -477,30 +484,15 @@ class MainController extends Controller
 
         $sheet->getStyle("A1:D1")->getFont()->setBold(true);
 
-        $sheet
-            ->setCellValue('A2', 'Ապրանքի անվանում')
-            ->setCellValue('B2', 'Միավոր արժեք')
-            ->setCellValue('C2', 'Քանակ')
-            ->setCellValue('D2', 'Արժեքը');
+        $i = 2;
+        foreach(Product::$Types as $type => $name) {
 
+            $sheet->mergeCells("A$i:D$i")
+                ->setCellValue("A$i", $name);
 
-        for ($j = 65; $j <= 68; $j++) {
-            $borders = $sheet->getStyle(chr($j) . '2')->getBorders();
-            $borders->getTop()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
-            $borders->getBottom()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
-            $borders->getLeft()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
-            $borders->getRight()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
-        }
+            $sheet->getStyle("A$i")->getAlignment()->setHorizontal(\PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
 
-        $totalPrice = 0;
-        $i = 3;
-        foreach($result as $data){
-
-            $sheet
-                ->setCellValue('A' . $i, $data['name'])
-                ->setCellValue('B' . $i, $data['price'])
-                ->setCellValue('C' . $i, $data['quantity'] . ($data['count'] > 1 ? ' = ' . $data['allQuantity'] : ''))
-                ->setCellValue('D' . $i, $data['calculatedPrice']);
+            $sheet->getStyle("A$i")->getFont()->setBold(true);
 
             for ($j = 65; $j <= 68; $j++) {
                 $borders = $sheet->getStyle(chr($j) . $i)->getBorders();
@@ -511,23 +503,64 @@ class MainController extends Controller
             }
 
             $i++;
-            $totalPrice += $data['calculatedPrice'];
-        }
 
-        $sheet
-            ->setCellValue('C' . $i, "Ընդհանուր գումարը")
-            ->setCellValue('D' . $i, $totalPrice);
 
-        $sheet->getStyle("D$i:E$i")->getFont()->setBold(true);
+            $sheet->getStyle("A$i:D$i")->getFont()->setBold(true);
 
-        $sheet->mergeCells("A$i:C$i");
+            $sheet
+                ->setCellValue("A$i", 'Ապրանքի անվանում')
+                ->setCellValue("B$i", 'Միավոր արժեք')
+                ->setCellValue("C$i", 'Քանակ')
+                ->setCellValue("D$i", 'Արժեքը');
 
-        for ($j = 65; $j <= 68; $j++) {
-            $borders = $sheet->getStyle(chr($j) . $i)->getBorders();
-            $borders->getTop()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
-            $borders->getBottom()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
-            $borders->getLeft()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
-            $borders->getRight()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
+
+            for ($j = 65; $j <= 68; $j++) {
+                $borders = $sheet->getStyle(chr($j) . $i)->getBorders();
+                $borders->getTop()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
+                $borders->getBottom()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
+                $borders->getLeft()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
+                $borders->getRight()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
+            }
+
+            $totalPrice = 0;
+            $i++;
+            foreach ($result[$type] as $data) {
+
+                $sheet
+                    ->setCellValue('A' . $i, $data['name'])
+                    ->setCellValue('B' . $i, $data['price'])
+                    ->setCellValue('C' . $i, $data['quantity'] . ($data['count'] > 1 ? ' = ' . $data['allQuantity'] : ''))
+                    ->setCellValue('D' . $i, $data['calculatedPrice']);
+
+                for ($j = 65; $j <= 68; $j++) {
+                    $borders = $sheet->getStyle(chr($j) . $i)->getBorders();
+                    $borders->getTop()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
+                    $borders->getBottom()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
+                    $borders->getLeft()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
+                    $borders->getRight()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
+                }
+
+                $i++;
+                $totalPrice += $data['calculatedPrice'];
+            }
+
+            $sheet
+                ->setCellValue('C' . $i, "Ընդհանուր գումարը")
+                ->setCellValue('D' . $i, $totalPrice);
+
+            $sheet->getStyle("D$i:E$i")->getFont()->setBold(true);
+
+            $sheet->mergeCells("A$i:C$i");
+
+            for ($j = 65; $j <= 68; $j++) {
+                $borders = $sheet->getStyle(chr($j) . $i)->getBorders();
+                $borders->getTop()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
+                $borders->getBottom()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
+                $borders->getLeft()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
+                $borders->getRight()->setBorderStyle(\PHPExcel_Style_Border::BORDER_MEDIUM);
+            }
+
+            $i++;
         }
 
 

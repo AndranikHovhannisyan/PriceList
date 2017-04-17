@@ -12,13 +12,12 @@
     <div class="container content">
         <form method="GET" action="{{ path('list') }}">
             <div class="row">
-                <div class="col-sm-3"><strong>Աշխատակից</strong></div>
-                <div class="col-sm-3"><strong>Խանութ</strong></div>
-                <div class="col-sm-2"><strong>Սկսած</strong></div>
-                <div class="col-sm-2"><strong>Մինչև</strong></div>
+                <div class="col-sm-6"><strong>Աշխատակից</strong></div>
+                <div class="col-sm-6"><strong>Խանութ</strong></div>
             </div>
+
             <div class="row">
-                <div class="col-sm-3">
+                <div class="col-sm-6">
                     {% if is_granted('ROLE_ADMIN') %}
                         <select id="user-select" name="user" class="form-control select2">
                             <option></option>
@@ -31,7 +30,7 @@
                     {% endif %}
 
                 </div>
-                <div class="col-sm-3">
+                <div class="col-sm-6">
                     <select id="company-select" name="company" class="form-control select2">
                         <option value=0></option>
                         {% for company in companies %}
@@ -39,10 +38,28 @@
                         {% endfor %}
                     </select>
                 </div>
-                <div class="col-sm-2">
+            </div>
+
+            <br />
+            <div class="row">
+                <div class="col-sm-3"><strong>Տեսակ</strong></div>
+                <div class="col-sm-3"><strong>Մինչև</strong></div>
+                <div class="col-sm-3"><strong>Մինչև</strong></div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-3">
+                    <select id="type-select" name="type" class="form-control select2">
+                        <option value=0></option>
+                        <option value="{{ constant('AppBundle\\Entity\\Product::ECONOMIC') }}" {% if constant('AppBundle\\Entity\\Product::ECONOMIC') == type %}selected="selected"{% endif %}>Տնտեսական</option>
+                        <option value="{{ constant('AppBundle\\Entity\\Product::JUICE') }}" {% if constant('AppBundle\\Entity\\Product::JUICE') == type %}selected="selected"{% endif %}>Հյութ</option>
+                    </select>
+                </div>
+
+                <div class="col-sm-3">
                     <input type="text" name="start_date" class="form-control datepicker" value="{{ start_date ? start_date|date('d-m-Y') : '' }}"/>
                 </div>
-                <div class="col-sm-2">
+                <div class="col-sm-3">
                     <input type="text" name="end_date" class="form-control datepicker" value="{{ end_date ? end_date|date('d-m-Y') : '' }}"/>
                 </div>
                 <div class="col-sm-1">
@@ -62,6 +79,7 @@
                     <tr>
                         <th>Id</th>
                         <th>Խանութ</th>
+                        <th>Տեսակ</th>
                         <th>Ամսաթիվ</th>
                         <th>Գումարը</th>
                         {% if is_granted('ROLE_ADMIN') %}<th>Աշխատակից</th>{% endif %}
@@ -72,6 +90,7 @@
                         <tr>
                             <td>{{ priceList.id }}</td>
                             <td>{{ priceList.company }}</td>
+                            <td>{{ priceList.typeName }}</td>
                             <td>{{ priceList.performDate|date('d-m-Y H:i:s') }}</td>
                             <td>{{ priceList.total|round(2, 'floor') }}</td>
                             {% if is_granted('ROLE_ADMIN') %}<th>{{ priceList.user.username }}</th>{% endif %}

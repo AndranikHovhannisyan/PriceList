@@ -1,6 +1,7 @@
 <?php
 
 namespace AppBundle\Entity\Repository;
+use AppBundle\Entity\Product;
 
 /**
  * ProductRepository
@@ -10,14 +11,15 @@ namespace AppBundle\Entity\Repository;
  */
 class ProductRepository extends \Doctrine\ORM\EntityRepository
 {
-    public function findAllIndexedById()
+    public function findAllIndexedById($type = Product::ECONOMIC)
     {
         return $this->getEntityManager()
             ->createQuery("SELECT p
                            FROM AppBundle:Product p
                            INDEX BY p.id
-                           WHERE p.enabled = true
+                           WHERE p.enabled = true and p.type = :type
                            ORDER BY p.name")
+            ->setParameter('type', $type)
             ->getResult();
     }
 }

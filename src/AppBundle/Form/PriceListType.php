@@ -7,6 +7,7 @@
  */
 namespace AppBundle\Form;
 
+use AppBundle\Entity\Product;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -29,6 +30,12 @@ class PriceListType extends AbstractType
     {
         $builder
             ->add('company')
+            ->add('type', ChoiceType::class, array(
+                'choices' => array(
+                    Product::$Types[Product::ECONOMIC] => Product::ECONOMIC,
+                    Product::$Types[Product::JUICE]    => Product::JUICE
+                )
+            ))
             ->add('isRegion')
             ->add('billingType', ChoiceType::class, array(
                 'choices' => array(

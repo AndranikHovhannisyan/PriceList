@@ -1,6 +1,7 @@
 <?php
 
 namespace AppBundle\Entity\Repository;
+use AppBundle\Entity\Product;
 
 /**
  * PriceListRepository
@@ -10,8 +11,15 @@ namespace AppBundle\Entity\Repository;
  */
 class PriceListRepository extends \Doctrine\ORM\EntityRepository
 {
-    public function findWithRelations($ids)
+    /**
+     * @param $ids
+     * @param bool $export
+     * @return array
+     */
+    public function findWithRelations($ids, $export = false)
     {
+        $orderBy = ($export) ? ' ORDER BY pl.company, pl.performDate' : "";
+
         if (!is_array($ids)){
             $ids = [$ids];
         }
@@ -24,13 +32,13 @@ class PriceListRepository extends \Doctrine\ORM\EntityRepository
                            JOIN plp.product p
                            LEFT JOIN pl.company c
                            LEFT JOIN c.user u
-                           WHERE pl.id IN (:ids)")
+                           WHERE pl.id IN (:ids)" . $orderBy)
             ->setParameter('ids', $ids)
             ->getResult();
     }
 
 
-    public function findQueryByUser($user, $companyId, $startDate, $endDate, $getIds = false)
+    public function findQueryByUser($user, $companyId, $startDate, $endDate, $getIds = false, $type = null)
     {
         $startDate = $startDate ? $startDate->format('Y-m-d') : null;
         $endDate   = $endDate   ? $endDate->format('Y-m-d')   : null;
@@ -48,11 +56,15 @@ class PriceListRepository extends \Doctrine\ORM\EntityRepository
                                AND (pl.company = :company OR :company IS NULL)
                                AND (pl.performDate >= :startDate OR :startDate IS NULL)
                                AND (pl.performDate <= :endDate OR :endDate IS NULL)
+                               AND (pl.type = :type OR :type IS NULL)
                            ORDER BY pl.id DESC")
             ->setParameter('user', $user)
             ->setParameter('company', $companyId)
             ->setParameter('startDate', $startDate)
-            ->setParameter('endDate', $endDate);
+            ->setParameter('endDate', $endDate)
+            ->setParameter('type', $type)
+
+        ;
 
         return $getIds ? $query->getResult() : $query;
     }
@@ -111,7 +123,7 @@ class PriceListRepository extends \Doctrine\ORM\EntityRepository
         $userIds = count($userIds) > 0 ? $userIds : [0];
 
         $result = $this->getEntityManager()
-            ->createQuery("SELECT  p.id, p.name, pl.isRegion, (CASE WHEN pl.isRegion = true THEN p.regionPrice ELSE p.price END) as price, plp.discount, SUM(plp.quantity) as quantity
+            ->createQuery("SELECT p.id, p.type, p.name, pl.isRegion, (CASE WHEN pl.isRegion = true THEN p.regionPrice ELSE p.price END) as price, plp.discount, SUM(plp.quantity) as quantity
                            FROM AppBundle:priceList pl
                            JOIN pl.priceListProducts plp
                            JOIN plp.product p
@@ -119,7 +131,7 @@ class PriceListRepository extends \Doctrine\ORM\EntityRepository
                            AND plp.quantity != 0
                            AND (pl.performDate >= :startDate OR :startDate IS NULL)
                            AND (pl.performDate <= :endDate OR :endDate IS NULL)
-                           GROUP BY p.id, pl.isRegion, plp.discount
+                           GROUP BY p.type, p.id, pl.isRegion, plp.discount
                            ORDER BY p.name")
             ->setParameter('userIds', $userIds)
             ->setParameter('company', $companyId)
@@ -127,22 +139,22 @@ class PriceListRepository extends \Doctrine\ORM\EntityRepository
             ->setParameter('endDate', $endDate)
             ->getResult();
 
-        $products = [];
+        $products = [Product::ECONOMIC => [], Product::JUICE => []];
         foreach($result as $data){
-            if (!isset($products[$data['id']])){
-                $products[$data['id']] = $data;
-                $products[$data['id']]['quantity'] = $data['quantity'] . ($data['isRegion'] ? 'մ' : '')  . ($data['discount'] ? "(-{$data['discount']}%) " : ' ');
-                $products[$data['id']]['calculatedPrice'] = 0;
-                $products[$data['id']]['allQuantity'] = $data['quantity'];
-                $products[$data['id']]['count'] = 1;
+            if (!isset($products[$data['type']][$data['id']])){
+                $products[$data['type']][$data['id']] = $data;
+                $products[$data['type']][$data['id']]['quantity'] = $data['quantity'] . ($data['isRegion'] ? 'մ' : '')  . ($data['discount'] ? "(-{$data['discount']}%) " : ' ');
+                $products[$data['type']][$data['id']]['calculatedPrice'] = 0;
+                $products[$data['type']][$data['id']]['allQuantity'] = $data['quantity'];
+                $products[$data['type']][$data['id']]['count'] = 1;
             }
             else {
-                $products[$data['id']]['quantity'] .= '+ ' . $data['quantity'] . ($data['isRegion'] ? 'մ' : '') . ($data['discount'] ? "(-{$data['discount']}%) " : ' ');
-                $products[$data['id']]['allQuantity'] += $data['quantity'];
-                $products[$data['id']]['count']++;
+                $products[$data['type']][$data['id']]['quantity'] .= '+ ' . $data['quantity'] . ($data['isRegion'] ? 'մ' : '') . ($data['discount'] ? "(-{$data['discount']}%) " : ' ');
+                $products[$data['type']][$data['id']]['allQuantity'] += $data['quantity'];
+                $products[$data['type']][$data['id']]['count']++;
             }
 
-            $products[$data['id']]['calculatedPrice'] += $data['price'] * $data['quantity'] * (100 - $data['discount']) / 100;
+            $products[$data['type']][$data['id']]['calculatedPrice'] += $data['price'] * $data['quantity'] * (100 - $data['discount']) / 100;
         }
 
         return $products;

@@ -7,8 +7,11 @@
         <p class="text-right">{{ priceList.performDate|date('d-m-Y H:i:s') }}</p>
 
         <div class="row">
-            <div class="col-sm-8">
+            <div class="col-sm-6">
                 <input class="form-control" type="text" value="{{ priceList.company }}" disabled>
+            </div>
+            <div class="col-sm-2">
+                <input class="form-control" type="text" value="{{ priceList.typeName }}" disabled>
             </div>
             <div class="col-sm-2">
                 <input class="form-control" type="text" value="{{ priceList.billingTypes[priceList.billingType] }}" disabled>

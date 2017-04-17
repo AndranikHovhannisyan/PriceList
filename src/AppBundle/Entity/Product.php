@@ -18,6 +18,14 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class Product
 {
+    const ECONOMIC  = 1;
+    const JUICE     = 2;
+
+    public static $Types = [
+        self::ECONOMIC => 'Տնտեսական',
+        self::JUICE    => 'Հյութ'
+    ];
+
     /**
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
@@ -50,6 +58,14 @@ class Product
      */
     protected $regionPrice;
 
+    /**
+     * @ORM\Column(name="type", type="smallint", nullable=true)
+     */
+    protected $type = self::ECONOMIC;
+
+    /**
+     * @return string
+     */
     public function __toString()
     {
         return $this->getname() ? $this->getname() : '';
@@ -167,5 +183,29 @@ class Product
     public function setRegionPrice($regionPrice)
     {
         $this->regionPrice = $regionPrice;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getType()
+    {
+        return $this->type;
+    }
+
+    /**
+     * @param mixed $type
+     */
+    public function setType($type)
+    {
+        $this->type = $type;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getTypeName()
+    {
+        return Product::$Types[$this->getType()];
     }
 }
