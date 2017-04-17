@@ -59,7 +59,7 @@ class Product
     protected $regionPrice;
 
     /**
-     * @ORM\Column(name="type", type="smallint", nullable=true)
+     * @ORM\Column(name="type", type="smallint", nullable=false)
      */
     protected $type = self::ECONOMIC;
 

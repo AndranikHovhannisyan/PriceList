@@ -73,7 +73,7 @@ class PriceList
     protected $comment;
 
     /**
-     * @ORM\Column(name="type", type="smallint", nullable=true)
+     * @ORM\Column(name="type", type="smallint", nullable=false)
      */
     protected $type = Product::ECONOMIC;
 
