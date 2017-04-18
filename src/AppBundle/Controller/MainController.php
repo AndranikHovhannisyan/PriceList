@@ -80,7 +80,8 @@ class MainController extends Controller
             $em->persist($priceList);
             $em->flush();
 
-            return $this->redirectToRoute('list');
+            $type = ($type == Product::ECONOMIC) ? 'juice' : 'economic';
+            return $this->redirectToRoute('single', ['type' => $type, 'companyId' => $priceList->getCompany()->getId()]);
         }
 
         return array('form' => $form->createView(), 'companies' => $companies);
@@ -277,7 +278,7 @@ class MainController extends Controller
             $sheet
                 ->setCellValue('A' . $i, $priceListProduct->getProduct()->getName())
                 ->setCellValue('B' . $i, $singlePrice)
-                ->setCellValue('C' . $i, $priceListProduct->getDiscount() . ($priceListProduct->getDiscount() ? '%' : ''))
+                ->setCellValue('C' . $i, $priceListProduct->getDiscount() . ($priceListProduct->getDiscount() ? '% (' . ($singlePrice * (100 - $priceListProduct->getDiscount()) / 100) . ')' : ''))
                 ->setCellValue('D' . $i, $quantity . ($zeroCount ? ($quantity ? ' + ' : '') . $zeroCount . '(-100%)' : ""))
                 ->setCellValue('E' . $i, $price);
 
