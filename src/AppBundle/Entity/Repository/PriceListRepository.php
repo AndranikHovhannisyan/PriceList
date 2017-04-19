@@ -16,10 +16,8 @@ class PriceListRepository extends \Doctrine\ORM\EntityRepository
      * @param bool $export
      * @return array
      */
-    public function findWithRelations($ids, $export = false)
+    public function findWithRelations($ids)
     {
-        $orderBy = ($export) ? ' ORDER BY pl.company, pl.performDate' : "";
-
         if (!is_array($ids)){
             $ids = [$ids];
         }
@@ -32,7 +30,8 @@ class PriceListRepository extends \Doctrine\ORM\EntityRepository
                            JOIN plp.product p
                            LEFT JOIN pl.company c
                            LEFT JOIN c.user u
-                           WHERE pl.id IN (:ids)" . $orderBy)
+                           WHERE pl.id IN (:ids)
+                           ORDER BY pl.id DESC")
             ->setParameter('ids', $ids)
             ->getResult();
     }
