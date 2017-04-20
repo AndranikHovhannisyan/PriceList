@@ -13,14 +13,16 @@ class PriceListRepository extends \Doctrine\ORM\EntityRepository
 {
     /**
      * @param $ids
-     * @param bool $export
+     * @param bool $ascOrder
      * @return array
      */
-    public function findWithRelations($ids)
+    public function findWithRelations($ids, $ascOrder = false)
     {
         if (!is_array($ids)){
             $ids = [$ids];
         }
+
+        $order = $ascOrder ? 'ASC' : 'DESC';
 
         return $this->getEntityManager()
             ->createQuery("SELECT pl, plp, p, c, u
@@ -31,7 +33,7 @@ class PriceListRepository extends \Doctrine\ORM\EntityRepository
                            LEFT JOIN pl.company c
                            LEFT JOIN c.user u
                            WHERE pl.id IN (:ids)
-                           ORDER BY pl.id DESC")
+                           ORDER BY pl.id " . $order)
             ->setParameter('ids', $ids)
             ->getResult();
     }

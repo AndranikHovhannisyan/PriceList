@@ -160,7 +160,7 @@ class MainController extends Controller
 
         if (count($ids) > 0){
             $ids = array_keys($ids);
-            $priceLists = $em->getRepository('AppBundle:PriceList')->findWithRelations($ids);
+            $priceLists = $em->getRepository('AppBundle:PriceList')->findWithRelations($ids, true);
 
             $phpExcelObject =  $this->get('phpexcel')->createPHPExcelObject();
 
